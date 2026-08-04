@@ -8,7 +8,7 @@ const httpServer = app.listen(port, () => {
 })
 
 interface Rooms {
-    sockets: WebSocket[]
+    sockets: WebSocket[] 
 }
 
 const rooms : Record<string, Rooms> = {}
@@ -36,10 +36,12 @@ wss.on("connection", (ws) => {
             })
         }
         if(parsedData.type === "leave-room"){
-            rooms[roomId]?.sockets.filter(vlae => {
-                if(vlae !== ws)return;
-                rooms[roomId]?.sockets.pop(ws)
+            if(rooms[roomId]?.sockets){
+                rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => {
+                socket !== ws
             })
+        }
+        
         }
     })
 })
