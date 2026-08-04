@@ -9,8 +9,8 @@ const Canvas = () => {
 
     useEffect(() => {
         const canvas = CanvasRef.current;
-        canvas.height = 500;
-        canvas.width = 500
+        canvas.height = 1000;
+        canvas.width = 1000
         const ctx = canvas.getContext('2d');
 
         ctx.lineCap = "round";
