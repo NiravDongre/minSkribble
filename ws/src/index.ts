@@ -16,32 +16,39 @@ const rooms : Record<string, Rooms> = {}
 const wss = new WebSocketServer({ server: httpServer});
 
 wss.on("connection", (ws) => {
-    console.error(Error);
     
-    ws.on("message", (data) => {
-        const parsedData  = JSON.parse(data.toString());
+    ws.on("message", (data, isBinary) => {
+
+        const message = isBinary ? data : data.toString()
+
+        const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
              rooms[roomId] = {
-                sockets: []
+                sockets: [],
              }
             }
-            rooms[roomId].sockets.push(ws)
-        }
+            console.log(`User ${parsedData.userId} joined`)
+        rooms[roomId].sockets.push(ws)
+    }
+
         if(parsedData.type === "chat-room"){
             rooms[roomId]?.sockets.forEach(socket =>{
                 if(socket == ws) return;
-                socket.send(data)
+                socket.send(message)
             })
-        }
+        console.log(parsedData.message)
+    }
+
         if(parsedData.type === "leave-room"){
             if(rooms[roomId]?.sockets){
                 rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => {
                 socket !== ws
             })
         }
-        
-        }
+    }
+
+    
     })
 })
