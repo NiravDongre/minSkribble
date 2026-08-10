@@ -14,7 +14,7 @@ const Canvas = () => {
         const ctx = canvas.getContext('2d');
 
         ctx.lineCap = "round";
-        ctx.lineWidth = 3;     
+        ctx.lineWidth = 1;     
         ctx.strokeStyle = '#000';
         ContextRef.current = ctx
 
@@ -46,7 +46,6 @@ const Canvas = () => {
     const leavedraw = () => {
         setDrawing(false)
     }
-
 
     return (
         <canvas ref={CanvasRef} 

@@ -1,7 +1,9 @@
 import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
+import cors from "cors";
 
 const app = express();
+app.use(cors())
 const port = 8080
 const httpServer = app.listen(port, () => {
     console.log(`The App is listening on ${port}`)
@@ -48,9 +50,5 @@ wss.on("connection", (ws) => {
             })
         }
     }
-
-        if(parsedData.type === ""){
-
-        }
     })
 })
