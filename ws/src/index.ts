@@ -20,13 +20,13 @@ wss.on("connection", (ws) => {
     ws.on("message", (data, isBinary) => {
 
         const message = isBinary ? data : data.toString()
-
         const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId
+    
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
              rooms[roomId] = {
-                sockets: [],
+                sockets: []
              }
             }
             console.log(`User ${parsedData.userId} joined`)
@@ -38,7 +38,7 @@ wss.on("connection", (ws) => {
                 if(socket == ws) return;
                 socket.send(message)
             })
-        console.log(parsedData.message)
+        console.log(parsedData.messages)
     }
 
         if(parsedData.type === "leave-room"){
@@ -49,6 +49,8 @@ wss.on("connection", (ws) => {
         }
     }
 
-    
+        if(parsedData.type === ""){
+
+        }
     })
 })
