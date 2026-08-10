@@ -20,8 +20,5 @@
     "nodemon": "^3.1.14",
     "redis": "^6.2.0",
     "ws": "^8.21.2"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.19"
   }
 }
