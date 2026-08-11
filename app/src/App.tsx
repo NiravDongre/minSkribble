@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import Canvas from "./Component/Canvas"
+import axios from "axios";
+
 
 
 function App(){
@@ -13,6 +15,29 @@ function App(){
       ...Loading
     </div>
   }
+
+  
+function Something(){
+
+  const [ word, setWord ] = useState("")
+
+    useEffect(() => {
+      setInterval(async() => {
+        const response = await axios.get("http://localhost:8080/Guessword");
+        setWord(response.data.GuessWord)
+      }, 5000)
+    },[])
+
+
+
+    return (
+      <div className="text-center">
+        Guess the word : {word}
+      </div>
+    )
+}
+
+
 
   useEffect(() => {
 
@@ -51,9 +76,7 @@ function App(){
 
   return (
     <div>
-      <div className="text-center">
-        Guess the word : {GuessWord}
-      </div>
+      <Something />
           <div className="h-screen flex justify-between items-center">
             <div>
               <div>

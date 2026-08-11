@@ -1,12 +1,34 @@
-import express, { json } from "express";
+import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
 import cors from "cors";
+import { Router } from "./routes/guessword";
 
 const app = express();
-app.use(cors())
+app.use(cors());
+app.use(Router);
+
 const port = 8080
 const httpServer = app.listen(port, () => {
     console.log(`The App is listening on ${port}`)
+})
+
+const mixedword = ["animals", "sport", "world", "trees", "jungle"];
+function RandomWord(){
+    return mixedword[Math.floor(Math.random() * mixedword.length)];
+}
+
+app.get("/Guessword", async (req, res) => {
+    const word = RandomWord()
+
+    if(word === undefined){
+      return res.json({
+            message: "word is undefined"
+        })
+    } else{
+    return res.json({
+        GuessWord: word
+    })
+    }
 })
 
 interface Rooms {
@@ -48,6 +70,7 @@ wss.on("connection", (ws) => {
         }
 
         if(parsedData.type === "chat-room"){
+            
             rooms[roomId]?.sockets.forEach(socket =>{
                 socket.send(JSON.stringify(parsedData))
             })
