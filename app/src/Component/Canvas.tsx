@@ -57,4 +57,4 @@ const Canvas = () => {
     )
 }
 
-export default React.memo(Canvas)
+export default memo(Canvas)

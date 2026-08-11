@@ -59,24 +59,31 @@ wss.on("connection", (ws) => {
         }
 
         if(parsedData.type === "chat-room"){
-            if(parsedData.messages === word){
-                rooms[roomId]?.sockets.forEach(socket =>{
-                    socket.send(JSON.stringify(`${parsedData.clientId} has guessed the word`))
-                })
-            } else{
-                rooms[roomId]?.sockets.forEach(socket =>{
-                    socket.send(JSON.stringify(parsedData))
-                })
+
+        const isCorrectGuess = parsedData.messages.trim().toLowerCase() === word?.toLowerCase();
+        
+            const BroadCastPayload = {
+                type: "chat-room",
+                clientId: parsedData.clientId,
+                messages: isCorrectGuess ? `${parsedData.clientId} has guessed the word`: parsedData.messages,
+                isCorrect: isCorrectGuess
             }
-        console.log(parsedData.messages)
-    }
+            if(isCorrectGuess){
+                console.log("Ohh you matched it right")
+            } 
+            rooms[roomId]?.sockets.forEach(socket => {
+                    if(socket.readyState === WebSocket.OPEN){
+                    socket.send(JSON.stringify(BroadCastPayload))
+                    } return;
+             })
+        }
 
         if(parsedData.type === "leave-room"){
             if(rooms[roomId]?.sockets){
-            rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => { socket !== ws })
-        }
-    }
-    })
+            rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => { socket !== ws })} 
+        }    
+ })
+
 
     client[ConnectorId] = {
         "Connection": ws
