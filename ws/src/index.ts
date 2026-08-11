@@ -13,23 +13,12 @@ const httpServer = app.listen(port, () => {
 })
 
 const mixedword = ["animals", "sport", "world", "trees", "jungle"];
+
 function RandomWord(){
     return mixedword[Math.floor(Math.random() * mixedword.length)];
 }
 
-app.get("/Guessword", async (req, res) => {
-    const word = RandomWord()
-
-    if(word === undefined){
-      return res.json({
-            message: "word is undefined"
-        })
-    } else{
-    return res.json({
-        GuessWord: word
-    })
-    }
-})
+const word = RandomWord();
 
 interface Rooms {
     sockets: WebSocket[] 
@@ -70,10 +59,15 @@ wss.on("connection", (ws) => {
         }
 
         if(parsedData.type === "chat-room"){
-            
-            rooms[roomId]?.sockets.forEach(socket =>{
-                socket.send(JSON.stringify(parsedData))
-            })
+            if(parsedData.messages === word){
+                rooms[roomId]?.sockets.forEach(socket =>{
+                    socket.send(JSON.stringify(`${parsedData.clientId} has guessed the word`))
+                })
+            } else{
+                rooms[roomId]?.sockets.forEach(socket =>{
+                    socket.send(JSON.stringify(parsedData))
+                })
+            }
         console.log(parsedData.messages)
     }
 
@@ -90,7 +84,8 @@ wss.on("connection", (ws) => {
 
     const payload = {
         "type": "connect",
-        "clientId": ConnectorId
+        "clientId": ConnectorId,
+        "word": word
     }
 
     ws.send(JSON.stringify(payload))

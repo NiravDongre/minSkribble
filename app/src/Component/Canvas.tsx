@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import React, { memo, useEffect, useRef, useState } from "react"
 
 
 
@@ -57,4 +57,4 @@ const Canvas = () => {
     )
 }
 
-export default Canvas
+export default React.memo(Canvas)

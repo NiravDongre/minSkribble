@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react"
 import Canvas from "./Component/Canvas"
-import axios from "axios";
 
-
+const something = new WebSocket("ws://localhost:8080");
 
 function App(){
   const clientId = "124343";
   const [ Messages , setMessages] = useState([]);
-  const [ Input, setInput ] = useState("");
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
 
   if(!Socket == null){
@@ -16,32 +14,8 @@ function App(){
     </div>
   }
 
-  
-function Something(){
-
-  const [ word, setWord ] = useState("")
-
-    useEffect(() => {
-      setInterval(async() => {
-        const response = await axios.get("http://localhost:8080/Guessword");
-        setWord(response.data.GuessWord)
-      }, 5000)
-    },[])
-
-
-
-    return (
-      <div className="text-center">
-        Guess the word : {word}
-      </div>
-    )
-}
-
-
-
   useEffect(() => {
 
-    const something = new WebSocket("ws://localhost:8080");
     something.onopen = () => {
       const payload = {
         "type": "join-room",
@@ -49,7 +23,7 @@ function Something(){
         "clientId": clientId
       }
 
-          something.send(JSON.stringify(payload));
+        something.send(JSON.stringify(payload));
       console.log("Connecting on now you can try sending messages")
     }
 
@@ -95,21 +69,7 @@ function Something(){
       <div className="h-full p-10 flex justify-center items-center">
             <div className="bg-blue-400 rounded-xl h-[800px] w-[400px]">
               <div className="flex flex-col mt-auto text-white p-2">
-                <div className="flex justify-between">
-                    <input onChange={(e) => {
-                      setInput(e.target.value)
-                    }} type="text" placeholder="Chat" className="p-4 bg-blue-800 outline-none text-slate-300 rounded-xl" />
-                              <button onClick={() => {
-                                console.log("button clicked")
-                                const payload = {
-                                  "type": "chat-room",
-                                  "roomId": "1234",
-                                  "clientId": clientId,
-                                  "messages": Input
-                                }
-                                Socket.send(JSON.stringify(payload))
-                   }} className="bg-white rounded-xl text-black p-4">Send</button>
-               </div>
+                <Chat Socket={Socket} clientId={clientId}/>
               </div>
 
               <div className="p-2 flex flex-col gap-4">
@@ -130,5 +90,60 @@ function Something(){
     </div>
   )
 }
+
+function Something(){
+
+  const [ word, setWord ] = useState("")
+
+    useEffect(() => {
+      something.onmessage = (message) => {
+        const response = JSON.parse(message.data);
+        console.log(response)
+        if(response.type === "connect"){
+          setWord(response.word)
+        }
+        console.log(response.word)
+      }
+
+      if(something.onmessage = null){
+      return () => {
+        something.onclose = () => {
+          console.log("Connection closed")
+        }}
+      }
+
+    },[])
+
+return (
+      <div className="text-center">
+        Guess the word : {word}
+      </div>
+    )
+}
+
+function Chat({Socket, clientId}){
+    const [ Input, setInput ] = useState("");
+
+  return (
+    <div className="flex justify-between">
+        <input onChange={(e) => {
+    setInput(e.target.value)
+      }} type="text" placeholder="Chat" className="p-4 bg-blue-800 outline-none text-slate-300 rounded-xl" />
+      
+  <button onClick={() => {
+              console.log("button clicked")
+              const payload = {
+                "type": "chat-room",
+                "roomId": "1234",
+                "clientId": clientId,
+                "messages": Input
+              }
+              Socket.send(JSON.stringify(payload))
+          }} className="bg-white rounded-xl text-black p-4">Send
+  </button>
+</div>
+  )
+}
+
 
 export default App
