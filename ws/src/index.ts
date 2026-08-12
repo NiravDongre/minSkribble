@@ -76,6 +76,21 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
             rooms[roomId]?.sockets.forEach(socket => {
                     if(socket.readyState === WebSocket.OPEN){
                     socket.send(JSON.stringify(BroadCastPayload))
+                    };
+             })
+        }
+
+        if(parsedData.type === "StartDraw"){
+            const BroadCastPayload = {
+                type: "StartDraw",
+                clientId: parsedData.clientId,
+                x: parsedData.x,
+                y: parsedData.y
+            }
+            rooms[roomId]?.sockets.forEach(socket => {
+                    if(socket.readyState === WebSocket.OPEN){
+                        if(socket == ws)return;
+                    socket.send(JSON.stringify(BroadCastPayload))
                     } return;
              })
         }
@@ -86,6 +101,20 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
                 clientId: parsedData.clientId,
                 x: parsedData.x,
                 y: parsedData.y
+            }
+            rooms[roomId]?.sockets.forEach(socket => {
+                    if(socket.readyState === WebSocket.OPEN){
+                        if(socket == ws)return;
+                    socket.send(JSON.stringify(BroadCastPayload))
+                    } return;
+             })
+        }
+
+        if(parsedData.type === "StopDraw"){
+            const BroadCastPayload = {
+                type: "StopDraw",
+                clientId: parsedData.clientId,
+                
             }
             rooms[roomId]?.sockets.forEach(socket => {
                     if(socket.readyState === WebSocket.OPEN){

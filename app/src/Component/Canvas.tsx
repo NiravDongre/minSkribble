@@ -5,20 +5,32 @@ const Canvas = ({Socket, clientId}) => {
     const ContextRef = useRef(null);
     const [ drawing, setDrawing ] = useState(false)
 
-    useEffect(() => { 
+useEffect(() => { 
     const canvas = CanvasRef.current;
-    
-    canvas.height = 1000; canvas.width = 1000;
-    
+    canvas.height = 1000; 
+    canvas.width = 1000;
     const ctx = canvas.getContext('2d');
+    ctx.lineCap = "round"; 
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#000'; 
+    ContextRef.current = ctx;
 
-     Socket.onmessage = (message) => {
+    Socket.onmessage = (message) => {
     const response = JSON.parse(message.data);
-    
-    if(response.type === "draw"){ ContextRef.current.lineTo(response.x, response.y) } } 
-    
-    ctx.lineCap = "round"; ctx.lineWidth = 1;
-    ctx.strokeStyle = '#000'; ContextRef.current = ctx }, []);
+    const ctx = ContextRef.current;
+
+        if(response.type === "Startdraw"){
+            ctx.moveTo(response.x, response.y)
+            ctx.beginPath();
+        }else if(response.type === "draw"){ 
+            ctx.lineTo(response.x, response.y) 
+            ctx.stroke(); 
+        }else if(response.type === "Stopdraw" || response.type === "LeaveDraw"){
+            ctx.closePath()
+        }
+    }     
+
+}, [Socket]);
 
 
     const startdraw = (e: React.MouseEvent) => {
@@ -28,6 +40,16 @@ const Canvas = ({Socket, clientId}) => {
             ContextRef.current.lineTo(offsetX, offsetY) 
             ContextRef.current.stroke() 
             setDrawing(true) 
+
+            const StartDrawPayload = {
+                type: "StartDraw",
+                clientId: clientId,
+                roomId: "1234",
+                x: offsetX,
+                y: offsetY
+            }
+            Socket.send(JSON.stringify(StartDrawPayload));
+
             e.preventDefault()
     }
 
@@ -41,8 +63,7 @@ const Canvas = ({Socket, clientId}) => {
                 roomId: "1234", 
                 x: offsetX, 
                 y: offsetY 
-                } 
-    
+            } 
     Socket.send(JSON.stringify(DrawingPayload))
         ContextRef.current.stroke()
         e.preventDefault() 
@@ -50,9 +71,25 @@ const Canvas = ({Socket, clientId}) => {
     
     const stoptdraw = () => { 
         ContextRef.current.closePath();
-        setDrawing(false) } 
-        const leavedraw = () => { 
-            setDrawing(false) 
+        setDrawing(false) 
+
+        const StopDrawPayload = {
+                type: "StopDraw",
+                clientId: clientId,
+                roomId: "1234"
+        }
+        Socket.send(JSON.stringify(StopDrawPayload));
+    }     
+    const leavedraw = () => {  
+        setDrawing(false) 
+    
+        const LeaveDrawPayload = {
+                type: "LeaveDraw",
+                clientId: clientId,
+                roomId: "1234"
+        }
+
+        Socket.send(JSON.stringify(LeaveDrawPayload));
     } 
 
 return (

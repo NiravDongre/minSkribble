@@ -10,14 +10,9 @@ export default function Main(){
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
   const [ word, setWord ] = useState("")
 
-  if(!Socket == null){
-    return <div className="h-screen flex justify-center items-center">
-      ...Loading
-    </div>
-  }
+
 
   useEffect(() => {
-
 
     const JoinRoom = () => {
       const payload = {
@@ -25,7 +20,6 @@ export default function Main(){
         "roomId": "1234",
         "clientId": clientId
       }
-
         something.send(JSON.stringify(payload));
       console.log("Joined Room successfully")
     }
@@ -38,7 +32,6 @@ export default function Main(){
 
     something.onmessage = (message) => {
       const response = JSON.parse(message.data);
-      console.log(response)
       
       if(response.type === "connect"){
         setWord(response.word)
@@ -46,9 +39,7 @@ export default function Main(){
       }
 
       if(response.type === "chat-room"){
-        console.log(response)
         setMessages(prev => [...prev, response.messages])
-        console.log(`The answer you get in input is ${response.messages}`)
       }
     }
     setSocket(something);
@@ -60,6 +51,12 @@ export default function Main(){
     }}
 
   }, [setSocket, clientId])
+
+      if(Socket == null){
+      return <div className="h-screen flex justify-center items-center">
+        ...Loading
+      </div>
+    }
 
   return (
     <div>
@@ -79,7 +76,6 @@ export default function Main(){
               Player: lirili larilla 
               </div>
             </div>
-// Inside App.tsx or Parent Component
 {Socket ? (
     <Canvas Socket={Socket} clientId={clientId} />
 ) : (

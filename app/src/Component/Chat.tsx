@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
-function Chat({Socket, clientId}){
+interface Chatter {
+  Socket: WebSocket,
+  clientId: string
+}
+
+function Chat({Socket, clientId}: Chatter){
     const [ Input, setInput ] = useState("");
 
   return (
@@ -24,4 +29,4 @@ function Chat({Socket, clientId}){
   )
 }
 
-export default Chat
+export default memo(Chat)
