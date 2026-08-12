@@ -24,7 +24,7 @@ export default function Room (){
                     <input type="text" className="p-2 outline-none bg-yellow-300 rounded" placeholder="username"/>
                 </div>
                 <div className="p-2 flex justify-center">
-                    <button className="bg-blue-800 rounded-xl p-4 cursor-pointer text-blue-300 font-semibold">Join room</button>
+                  <button  className="bg-blue-800 rounded-xl p-4 cursor-pointer text-blue-300 font-semibold">Join room</button>
                 </div>
             </div>
         </div>

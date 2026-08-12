@@ -79,7 +79,13 @@ export default function Main(){
               Player: lirili larilla 
               </div>
             </div>
-          <Canvas />
+// Inside App.tsx or Parent Component
+{Socket ? (
+    <Canvas Socket={Socket} clientId={clientId} />
+) : (
+    <div>Connecting to whiteboard server...</div>
+)}
+
 
       <div className="h-full p-10 flex justify-center items-center">
             <div className="bg-blue-400 rounded-xl h-[800px] w-[400px]">

@@ -25,7 +25,7 @@ interface Rooms {
 }
 
 const client : Record<string, { Connection: WebSocket }>= {}
-const ConnectorId = guid();
+
 
 function guid() {
     var S4 = function() {
@@ -40,7 +40,9 @@ const wss = new WebSocketServer({ server: httpServer});
 
 wss.on("connection", (ws) => {
 
-    console.log(`Connection established with browser it's name or id is this ${ConnectorId}`)
+const ConnectorId = guid();
+
+console.log(`this is the id of ws i guess ${ConnectorId}`)
     
     ws.on("message", (data, isBinary) => {
 
@@ -78,6 +80,20 @@ wss.on("connection", (ws) => {
              })
         }
 
+        if(parsedData.type === "draw"){
+            const BroadCastPayload = {
+                type: "draw",
+                clientId: parsedData.clientId,
+                x: parsedData.x,
+                y: parsedData.y
+            }
+            rooms[roomId]?.sockets.forEach(socket => {
+                    if(socket.readyState === WebSocket.OPEN){
+                        if(socket == ws)return;
+                    socket.send(JSON.stringify(BroadCastPayload))
+                    } return;
+             })
+        }
         if(parsedData.type === "leave-room"){
             if(rooms[roomId]?.sockets){
             rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => { socket !== ws })} 
