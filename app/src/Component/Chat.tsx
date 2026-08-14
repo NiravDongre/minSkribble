@@ -2,10 +2,13 @@ import { memo, useState } from "react";
 
 interface Chatter {
   Socket: WebSocket,
-  username: string
+  username: string,
+  roomId: string
 }
 
-function Chat({Socket, username}: Chatter){
+function Chat({Socket, username, roomId}: Chatter){
+
+  console.log(username, roomId)
     const [ Input, setInput ] = useState("");
 
   return (
@@ -18,7 +21,7 @@ function Chat({Socket, username}: Chatter){
               console.log("button clicked")
               const payload = {
                 "type": "chat-room",
-                "roomId": "1234",
+                "roomId": roomId,
                 "username": username,
                 "messages": Input
               }

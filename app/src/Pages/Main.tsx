@@ -2,21 +2,21 @@ import { useEffect, useState } from "react"
 import Canvas from "../Component/Canvas"
 import Chat from "../Component/Chat";
 import LeaderBoard from "../Component/LeaderBoard";
-
-
+import { useLocation } from "react-router-dom";
 
 export default function Main({something}){
-  const username = "124343";
+  const location = useLocation();
   const [ Messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
   const [ word, setWord ] = useState("")
 
-
+  const { username, roomId } = location.state || { username: "", roomId: "" }
 
   useEffect(() => {
 
     something.onmessage = (message) => {
       const response = JSON.parse(message.data);
+      console.log(response.username)
       
       if(response.type === "connect"){
         setWord(response.word)
@@ -51,16 +51,15 @@ export default function Main({something}){
  <div className="h-screen flex justify-between items-center">
   <LeaderBoard Socket={Socket} />
 {Socket ? (
-    <Canvas Socket={Socket} username={username} />
+    <Canvas Socket={Socket} username={username} roomId={roomId} />
 ) : (
     <div>Connecting to whiteboard server...</div>
 )}
 
-
       <div className="h-full p-10 flex justify-center items-center">
             <div className="bg-blue-400 rounded-xl h-[800px] w-[400px]">
               <div className="flex flex-col mt-auto text-white p-2">
-                <Chat Socket={Socket} username={username}/>
+                <Chat Socket={Socket} roomId={roomId} username={username}/>
               </div>
 
               <div className="p-2 flex flex-col gap-4">

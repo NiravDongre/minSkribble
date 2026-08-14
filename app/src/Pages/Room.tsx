@@ -16,7 +16,7 @@ const Room = ({something}) => {
             "roomId": RoomId,
             "username": UserName
         }
-            something.send(JSON.stringify(payload));
+        something.send(JSON.stringify(payload));
         console.log("Joined Room successfully")
 }
 
@@ -45,7 +45,7 @@ const Room = ({something}) => {
                     } else {
                         something.onopen = JoinRoom;
                     }
-                    navigate("/game")
+                    navigate("/game", {state: { username: UserName, roomId: RoomId}})
                   }} className="bg-blue-800 rounded-xl p-4 cursor-pointer text-blue-300 font-semibold">Join room</button>
                 </div>
             </div>

@@ -1,11 +1,9 @@
 import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
 import cors from "cors";
-import { Router } from "./routes/guessword";
 
 const app = express();
 app.use(cors());
-app.use(Router);
 
 const port = 8080
 const httpServer = app.listen(port, () => {
@@ -45,10 +43,11 @@ const ConnectorId = guid();
 console.log(`this is the id of ws i guess ${ConnectorId}`)
     
     ws.on("message", (data, isBinary) => {
-
         const message = isBinary ? data : data.toString()
         const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId;
+        const username = parsedData.username;
+        console.log(roomId)
     
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
@@ -56,8 +55,8 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
                 sockets: []
              }
             }
-        console.log(`User ${parsedData.username} joined`)
-        rooms[roomId].sockets.push(ws)
+            console.log(`User ${parsedData.username} joined`)
+            rooms[roomId].sockets.push(ws)
         }
 
         if(parsedData.type === "chat-room"){
@@ -66,7 +65,8 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         
             const BroadCastPayload = {
                 type: "chat-room",
-                username: parsedData.username,
+                roomId: roomId,
+                username: username,
                 messages: isCorrectGuess ? `${parsedData.username} has guessed the word`: parsedData.messages,
                 isCorrect: isCorrectGuess
             }
@@ -77,13 +77,14 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
                     if(socket.readyState === WebSocket.OPEN){
                     socket.send(JSON.stringify(BroadCastPayload))
                     };
-             })
+            })
         }
 
         if(parsedData.type === "StartDraw"){
             const BroadCastPayload = {
                 type: "StartDraw",
-                username: parsedData.username,
+                username: username,
+                roomId: roomId,
                 x: parsedData.x,
                 y: parsedData.y
             }
@@ -98,7 +99,8 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         if(parsedData.type === "draw"){
             const BroadCastPayload = {
                 type: "draw",
-                username: parsedData.username,
+                username: username,
+                roomId: roomId,
                 x: parsedData.x,
                 y: parsedData.y
             }
@@ -110,33 +112,23 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
              })
         }
 
-        if(parsedData.type === "StopDraw"){
+        if(parsedData.type === "StopDraw" || parsedData.type === "LeaveDraw"){
             const BroadCastPayload = {
                 type: "StopDraw",
-                username: parsedData.username,
-                
+                username: username,
+                roomId: roomId
             }
             rooms[roomId]?.sockets.forEach(socket => {
-                    if(socket.readyState === WebSocket.OPEN){
-                        if(socket == ws)return;
-                    socket.send(JSON.stringify(BroadCastPayload))
-                    } return;
-             })
-        }
-        if(parsedData.type === "leave-room"){
-            if(rooms[roomId]?.sockets){
-            rooms[roomId].sockets = rooms[roomId]?.sockets.filter((socket) => { socket !== ws })} 
-        }    
- })
-
-
-    client[ConnectorId] = {
-        "Connection": ws
-    };
+            if(socket.readyState === WebSocket.OPEN){
+                if(socket == ws)return;
+            socket.send(JSON.stringify(BroadCastPayload))
+            };
+        })
+    } 
+})
 
     const payload = {
         "type": "connect",
-        "username": ConnectorId,
         "word": word
     }
 
