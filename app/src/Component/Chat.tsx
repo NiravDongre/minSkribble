@@ -2,10 +2,10 @@ import { memo, useState } from "react";
 
 interface Chatter {
   Socket: WebSocket,
-  clientId: string
+  username: string
 }
 
-function Chat({Socket, clientId}: Chatter){
+function Chat({Socket, username}: Chatter){
     const [ Input, setInput ] = useState("");
 
   return (
@@ -19,7 +19,7 @@ function Chat({Socket, clientId}: Chatter){
               const payload = {
                 "type": "chat-room",
                 "roomId": "1234",
-                "clientId": clientId,
+                "username": username,
                 "messages": Input
               }
               Socket.send(JSON.stringify(payload))

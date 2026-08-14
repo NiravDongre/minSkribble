@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import Canvas from "../Component/Canvas"
 import Chat from "../Component/Chat";
+import LeaderBoard from "../Component/LeaderBoard";
 
-const something = new WebSocket("ws://localhost:8080");
 
-export default function Main(){
-     const clientId = "124343";
+
+export default function Main({something}){
+  const username = "124343";
   const [ Messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
   const [ word, setWord ] = useState("")
@@ -14,28 +15,12 @@ export default function Main(){
 
   useEffect(() => {
 
-    const JoinRoom = () => {
-      const payload = {
-        "type": "join-room",
-        "roomId": "1234",
-        "clientId": clientId
-      }
-        something.send(JSON.stringify(payload));
-      console.log("Joined Room successfully")
-    }
-
-    if(something.readyState === WebSocket.OPEN){
-      JoinRoom()
-    } else {
-      something.onopen = JoinRoom;
-    }
-
     something.onmessage = (message) => {
       const response = JSON.parse(message.data);
       
       if(response.type === "connect"){
         setWord(response.word)
-        console.log(`Connection established the id is ${response.clientId}`)
+        console.log(`Connection established the id is ${response.username}`)
       }
 
       if(response.type === "chat-room"){
@@ -50,7 +35,7 @@ export default function Main(){
       console.log("Connection closed")
     }}
 
-  }, [setSocket, clientId])
+  }, [setSocket, username])
 
       if(Socket == null){
       return <div className="h-screen flex justify-center items-center">
@@ -63,21 +48,10 @@ export default function Main(){
       <div className="text-center">
         Guess the word : {word}
       </div>
-              <div className="h-screen flex justify-between items-center">
-            <div>
-              <div>
-              Leader : Nirav <br/>
-              Player: Nirav 
-              </div>
-              <div>
-              Player: Sumedh
-              </div>
-              <div>
-              Player: lirili larilla 
-              </div>
-            </div>
+ <div className="h-screen flex justify-between items-center">
+  <LeaderBoard Socket={Socket} />
 {Socket ? (
-    <Canvas Socket={Socket} clientId={clientId} />
+    <Canvas Socket={Socket} username={username} />
 ) : (
     <div>Connecting to whiteboard server...</div>
 )}
@@ -86,7 +60,7 @@ export default function Main(){
       <div className="h-full p-10 flex justify-center items-center">
             <div className="bg-blue-400 rounded-xl h-[800px] w-[400px]">
               <div className="flex flex-col mt-auto text-white p-2">
-                <Chat Socket={Socket} clientId={clientId}/>
+                <Chat Socket={Socket} username={username}/>
               </div>
 
               <div className="p-2 flex flex-col gap-4">

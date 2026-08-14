@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 
-const Canvas = ({Socket, clientId}) => {
+const Canvas = ({Socket, username}) => {
     const CanvasRef = useRef<HTMLCanvasElement | null>(null);
     const ContextRef = useRef(null);
     const [ drawing, setDrawing ] = useState(false)
@@ -43,7 +43,7 @@ useEffect(() => {
 
             const StartDrawPayload = {
                 type: "StartDraw",
-                clientId: clientId,
+                username: username,
                 roomId: "1234",
                 x: offsetX,
                 y: offsetY
@@ -59,7 +59,7 @@ useEffect(() => {
             ContextRef.current.lineTo(offsetX, offsetY) 
             const DrawingPayload = { 
                 type: "draw", 
-                clientId: clientId, 
+                username: username, 
                 roomId: "1234", 
                 x: offsetX, 
                 y: offsetY 
@@ -72,10 +72,9 @@ useEffect(() => {
     const stoptdraw = () => { 
         ContextRef.current.closePath();
         setDrawing(false) 
-
         const StopDrawPayload = {
                 type: "StopDraw",
-                clientId: clientId,
+                username: username,
                 roomId: "1234"
         }
         Socket.send(JSON.stringify(StopDrawPayload));
@@ -85,7 +84,7 @@ useEffect(() => {
     
         const LeaveDrawPayload = {
                 type: "LeaveDraw",
-                clientId: clientId,
+                username: username,
                 roomId: "1234"
         }
 

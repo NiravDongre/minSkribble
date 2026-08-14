@@ -48,7 +48,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
 
         const message = isBinary ? data : data.toString()
         const parsedData  = JSON.parse(message as string);
-        const roomId = parsedData.roomId
+        const roomId = parsedData.roomId;
     
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
@@ -56,7 +56,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
                 sockets: []
              }
             }
-            console.log(`User ${parsedData.clientId} joined`)
+        console.log(`User ${parsedData.username} joined`)
         rooms[roomId].sockets.push(ws)
         }
 
@@ -66,8 +66,8 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         
             const BroadCastPayload = {
                 type: "chat-room",
-                clientId: parsedData.clientId,
-                messages: isCorrectGuess ? `${parsedData.clientId} has guessed the word`: parsedData.messages,
+                username: parsedData.username,
+                messages: isCorrectGuess ? `${parsedData.username} has guessed the word`: parsedData.messages,
                 isCorrect: isCorrectGuess
             }
             if(isCorrectGuess){
@@ -83,7 +83,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         if(parsedData.type === "StartDraw"){
             const BroadCastPayload = {
                 type: "StartDraw",
-                clientId: parsedData.clientId,
+                username: parsedData.username,
                 x: parsedData.x,
                 y: parsedData.y
             }
@@ -98,7 +98,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         if(parsedData.type === "draw"){
             const BroadCastPayload = {
                 type: "draw",
-                clientId: parsedData.clientId,
+                username: parsedData.username,
                 x: parsedData.x,
                 y: parsedData.y
             }
@@ -113,7 +113,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         if(parsedData.type === "StopDraw"){
             const BroadCastPayload = {
                 type: "StopDraw",
-                clientId: parsedData.clientId,
+                username: parsedData.username,
                 
             }
             rooms[roomId]?.sockets.forEach(socket => {
@@ -136,7 +136,7 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
 
     const payload = {
         "type": "connect",
-        "clientId": ConnectorId,
+        "username": ConnectorId,
         "word": word
     }
 
