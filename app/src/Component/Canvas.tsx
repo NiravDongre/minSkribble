@@ -1,35 +1,46 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 
-const Canvas = ({Socket, username, roomId}) => {
+interface Canvas {
+    Socket: WebSocket,
+    username: string,
+    roomId: string
+}
+
+const Canvas = ({Socket, username, roomId}: Canvas) => {
     const CanvasRef = useRef<HTMLCanvasElement | null>(null);
     const ContextRef = useRef(null);
     const [ drawing, setDrawing ] = useState(false)
 
 useEffect(() => { 
     const canvas = CanvasRef.current;
-    canvas.height = 1000; 
-    canvas.width = 1000;
+    canvas.height = 800; 
+    canvas.width = 800;
     const ctx = canvas.getContext('2d');
     ctx.lineCap = "round"; 
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#000'; 
     ContextRef.current = ctx;
 
-    Socket.onmessage = (message) => {
-    const response = JSON.parse(message.data);
-    const ctx = ContextRef.current;
+    const handleFunction = (message) => {
+        const response = JSON.parse(message.data);
+        const ctx = ContextRef.current;
+            if(response.type === "StartDraw"){
+                ctx.moveTo(response.x, response.y)
+                ctx.beginPath();
+            }else if(response.type === "draw"){ 
+                ctx.lineTo(response.x, response.y) 
+                ctx.stroke(); 
+            }else if(response.type === "StopDraw" || response.type === "LeaveDraw"){
+                ctx.closePath()
+            } 
+    }
 
-        if(response.type === "Startdraw"){
-            ctx.moveTo(response.x, response.y)
-            ctx.beginPath();
-        }else if(response.type === "draw"){ 
-            ctx.lineTo(response.x, response.y) 
-            ctx.stroke(); 
-        }else if(response.type === "Stopdraw" || response.type === "LeaveDraw"){
-            ctx.closePath()
-        }
-    }     
+    Socket.addEventListener("message", handleFunction)     
 
+    return () => {
+        Socket.removeEventListener("message", handleFunction);
+    };
+    
 }, [Socket]);
 
 

@@ -22,7 +22,12 @@ interface Rooms {
     sockets: WebSocket[] 
 }
 
-const client : Record<string, { Connection: WebSocket }>= {}
+interface Client {
+    username: string,
+    Connection: WebSocket 
+}
+
+const client : Record<string, Client>= {}
 
 
 function guid() {
@@ -47,21 +52,34 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
         const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId;
         const username = parsedData.username;
-        console.log(roomId)
     
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
              rooms[roomId] = {
                 sockets: []
              }
+             client[roomId] = {
+             username: username,
+             Connection: ws
+             }
             }
             console.log(`User ${parsedData.username} joined`)
-            rooms[roomId].sockets.push(ws)
+                rooms[roomId].sockets.push(ws);
+
+            const payload = {
+                type: "connect",
+                roomId: roomId,
+                username: username,
+                word: word
+            }
+
+            
+            ws.send(JSON.stringify(payload))
         }
 
         if(parsedData.type === "chat-room"){
 
-        const isCorrectGuess = parsedData.messages.trim().toLowerCase() === word?.toLowerCase();
+         const isCorrectGuess = parsedData.messages.trim().toLowerCase() === word?.toLowerCase();
         
             const BroadCastPayload = {
                 type: "chat-room",
@@ -76,8 +94,8 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
             rooms[roomId]?.sockets.forEach(socket => {
                     if(socket.readyState === WebSocket.OPEN){
                     socket.send(JSON.stringify(BroadCastPayload))
-                    };
-            })
+                };
+            });
         }
 
         if(parsedData.type === "StartDraw"){
@@ -127,10 +145,4 @@ console.log(`this is the id of ws i guess ${ConnectorId}`)
     } 
 })
 
-    const payload = {
-        "type": "connect",
-        "word": word
-    }
-
-    ws.send(JSON.stringify(payload))
 })

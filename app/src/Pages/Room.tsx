@@ -4,20 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 
 
-const Room = ({something}) => {
+const Room = () => {
 
     const navigate = useNavigate();
     const [ RoomId, setRoomId ] = useState("");
     const [ UserName, setUserName ] = useState("");
 
  const JoinRoom = () => {
-        const payload = {
-            "type": "join-room",
-            "roomId": RoomId,
-            "username": UserName
-        }
-        something.send(JSON.stringify(payload));
-        console.log("Joined Room successfully")
+        navigate("/game", {state: { username: UserName, roomId: RoomId}})
 }
 
 
@@ -40,12 +34,7 @@ const Room = ({something}) => {
                 </div>
                 <div className="p-2 flex justify-center">
                   <button onClick={() => {
-                    if(something.readyState === WebSocket.OPEN){
-                        JoinRoom()
-                    } else {
-                        something.onopen = JoinRoom;
-                    }
-                    navigate("/game", {state: { username: UserName, roomId: RoomId}})
+                    JoinRoom()
                   }} className="bg-blue-800 rounded-xl p-4 cursor-pointer text-blue-300 font-semibold">Join room</button>
                 </div>
             </div>
