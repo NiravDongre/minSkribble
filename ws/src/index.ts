@@ -18,12 +18,6 @@ function RandomWord(){
 
 const word = RandomWord();
 
-let Timeleft = 80;
-
-
-
-
-
 interface Rooms {
     Player: Client[],
     round: number,
@@ -92,13 +86,22 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
             }
 
             function WordChanger(){
-                    let sec = setInterval(() => {
-                            Timeleft--;
-                        console.log(`Time here is ${Timeleft}`)
-                            if(Timeleft === 0){
-                                return clearInterval(sec);
-                            }
-                    }, 1000)
+            let Timeleft = 80;
+                let sec = setInterval(() => {
+                        Timeleft--;
+
+                    const TimingPayload = {
+                        type: "time",
+                        roomId: roomId,
+                        round: rooms[roomId]?.round,
+                        Timeleft: Timeleft
+                    }
+                    ws.send(JSON.stringify(TimingPayload))
+                    if(Timeleft === 0){
+                        ws.send(JSON.stringify(payload))
+                            return clearInterval(sec);
+                    }
+                }, 1000)
             }
             ws.send(JSON.stringify(payload))
         }
