@@ -21,7 +21,6 @@ const word = RandomWord();
 interface Rooms {
     Player: Client[],
     round: number,
-    Timing: void,
     isCurrentlyDrawing: number,
     word: string
 }
@@ -66,7 +65,6 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
              rooms[roomId] = {
                 Player: [],
                 round: 3,
-                Timing: WordChanger(),
                 isCurrentlyDrawing: 0,
                 word: RandomWord()
              }
@@ -85,14 +83,20 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 word: rooms[roomId].word
             }
 
-            const guessPayload = {
+            ws.send(JSON.stringify(payload))
+
+        }
+
+        if(parsedData.type === "time"){
+
+        const guessPayload = {
                 type: "actual-word",
                 roomId: roomId,
                 username: username,
-                word: rooms[roomId].word
-            }
+                word: rooms[roomId]?.word
+        }
 
-            function WordChanger(){
+        function WordChanger(){
             let Timeleft = 80;
                 let sec = setInterval(() => {
                         Timeleft--;
@@ -115,7 +119,6 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                     }
                 }, 1000)
             }
-            ws.send(JSON.stringify(payload))
         }
 
         if(parsedData.type === "chat-room"){

@@ -13,7 +13,7 @@ const Canvas = ({Socket, username, roomId}: Canvas) => {
 
 useEffect(() => { 
     const canvas = CanvasRef.current;
-    canvas.height = 800; 
+    canvas.height = 700; 
     canvas.width = 800;
     const ctx = canvas.getContext('2d');
     ctx.lineCap = "round"; 
@@ -109,7 +109,7 @@ return (
     onMouseMove={movedraw} 
     onMouseUp={stoptdraw} 
     onMouseLeave={leavedraw} 
-    className="canvas-container"></canvas> 
+    className="canvas-container bg-white"></canvas> 
                     
 )}
 

@@ -3,6 +3,7 @@ import Canvas from "../Component/Canvas"
 import Chat from "../Component/Chat";
 import LeaderBoard from "../Component/LeaderBoard";
 import { useLocation } from "react-router-dom";
+import Setting from "../Component/GameSystem";
 const something = new WebSocket("ws://localhost:8080");
 
 export default function Main(){
@@ -10,11 +11,7 @@ export default function Main(){
   const [ messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
   const [ word, setWord ] = useState("");
-  const [ timeleft, setTimeleft ] = useState(80);
-  const [ startPlay, setStartPlay ] = useState(false);
   const { username, roomId } = location.state || { username: "", roomId: "" }
-
-
 
   useEffect(() => {
 
@@ -26,11 +23,6 @@ export default function Main(){
       if(response.type === "connect"){
         setWord(response.word)
         console.log(`Connection established Successfully`)
-      }
-
-      if(response.type === "time"){
-        setTimeleft(response.Timeleft)
-        console.log(response.Timeleft)
       }
 
       if(response.type === "actual-word"){
@@ -70,7 +62,7 @@ export default function Main(){
     something.onmessage = null;  
   }
 
-  }, [setMessages, timeleft])
+  }, [setMessages])
 
     if(Socket == null){
       return <div className="h-screen flex justify-center items-center">
@@ -79,18 +71,19 @@ export default function Main(){
     }
 
   return (
-    <div>
-      <div className="text-center">
-        Guess the word : {word}
-      </div>
- <div className="h-screen flex justify-between items-center">
-    
+ <div className="h-screen">
+
+    <div className=" text-center">
+      Guess the word : {word}
+    </div>
+ <div className=" flex justify-between items-center">
+
 <LeaderBoard Socket={Socket} roomId={roomId}/>
 
 <div>
-  <div>
-    TimeLeft: {timeleft}
-  </div>
+
+  <Setting Socket={Socket} roomId={roomId}/>
+
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} />
     ) : (
