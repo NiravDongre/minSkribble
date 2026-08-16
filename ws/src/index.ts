@@ -85,6 +85,13 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 word: rooms[roomId].word
             }
 
+            const guessPayload = {
+                type: "actual-word",
+                roomId: roomId,
+                username: username,
+                word: rooms[roomId].word
+            }
+
             function WordChanger(){
             let Timeleft = 80;
                 let sec = setInterval(() => {
@@ -98,8 +105,13 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                     }
                     ws.send(JSON.stringify(TimingPayload))
                     if(Timeleft === 0){
-                        ws.send(JSON.stringify(payload))
-                            return clearInterval(sec);
+                        rooms[roomId]?.Player.forEach((clients) => {
+                            if(clients.socket.readyState === WebSocket.OPEN){
+                                if(clients.socket == ws) return;
+                                ws.send(JSON.stringify(guessPayload))
+                                return clearInterval(sec);
+                            }
+                        })
                     }
                 }, 1000)
             }

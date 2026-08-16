@@ -9,7 +9,9 @@ export default function Main(){
   const location = useLocation();
   const [ messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
-  const [ word, setWord ] = useState("")
+  const [ word, setWord ] = useState("");
+  const [ timeleft, setTimeleft ] = useState(80);
+  const [ startPlay, setStartPlay ] = useState(false);
   const { username, roomId } = location.state || { username: "", roomId: "" }
 
 
@@ -24,6 +26,15 @@ export default function Main(){
       if(response.type === "connect"){
         setWord(response.word)
         console.log(`Connection established Successfully`)
+      }
+
+      if(response.type === "time"){
+        setTimeleft(response.Timeleft)
+        console.log(response.Timeleft)
+      }
+
+      if(response.type === "actual-word"){
+        alert(`The word was ${response.word}`)
       }
 
     console.log(response.messages)
@@ -59,7 +70,7 @@ export default function Main(){
     something.onmessage = null;  
   }
 
-  }, [setMessages])
+  }, [setMessages, timeleft])
 
     if(Socket == null){
       return <div className="h-screen flex justify-center items-center">
@@ -74,15 +85,18 @@ export default function Main(){
       </div>
  <div className="h-screen flex justify-between items-center">
     
-    <div className="text-sm text-gray-500 text-center">
-      Room: {roomId} | Player: {username}
-    </div>
+<LeaderBoard Socket={Socket} roomId={roomId}/>
 
+<div>
+  <div>
+    TimeLeft: {timeleft}
+  </div>
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} />
     ) : (
         <div>Connecting to whiteboard server...</div>
     )}
+</div>
 
       <div className="h-full p-10 flex justify-center items-center">
 
