@@ -29,7 +29,6 @@ export default function Main(){
         alert(`The word was ${response.word}`)
       }
 
-    console.log(response.messages)
       if(response.type === "chat-room"){
         const messages = response.messages;
         const user = response.username;

@@ -87,14 +87,16 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
         }
 
-        if(parsedData.type === "time"){
+        if(parsedData.type === "start-play"){
+          
+            WordChanger();
 
-        const guessPayload = {
-                type: "actual-word",
-                roomId: roomId,
-                username: username,
-                word: rooms[roomId]?.word
-        }
+            const guessPayload = {
+                    type: "actual-word",
+                    roomId: roomId,
+                    username: username,
+                    word: rooms[roomId]?.word
+            }
 
         function WordChanger(){
             let Timeleft = 80;
@@ -112,7 +114,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                         rooms[roomId]?.Player.forEach((clients) => {
                             if(clients.socket.readyState === WebSocket.OPEN){
                                 if(clients.socket == ws) return;
-                                ws.send(JSON.stringify(guessPayload))
+                                clients.socket.send(JSON.stringify(guessPayload))
                                 return clearInterval(sec);
                             }
                         })

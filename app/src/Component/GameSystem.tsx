@@ -12,7 +12,7 @@ const Setting = ({Socket, roomId}: Setting) => {
 
     function handler (){
         setStartPlay(true)
-    }g
+    }
 
     useEffect(() => {
 
@@ -24,12 +24,11 @@ const Setting = ({Socket, roomId}: Setting) => {
     if(startPlay === true){
         Socket.send(JSON.stringify(payload))   
     }
-    
+
     const handleFunction = (messages) => {
-        const response = messages.data
-      if(response.type === "time"){
-        setTimeleft(response.Timeleft)
-        console.log(response.Timeleft)
+        const response = JSON.parse(messages.data)
+        if(response.type === "time"){
+            setTimeleft(response.Timeleft)
       }
     }
 
@@ -39,7 +38,7 @@ const Setting = ({Socket, roomId}: Setting) => {
         Socket.removeEventListener("message", handleFunction)
     })
 
-}, [Socket])
+}, [Socket,startPlay])
 
     return (
         <div className="flex justify-between p-4 bg-blue-400 border-black rounded-t-lg">
