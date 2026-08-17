@@ -31,8 +31,7 @@ interface Client {
     socket: WebSocket
 }
 
-const client : Record<string, Client>= {}
-
+const client = 8;
 
 function guid() {
     var S4 = function() {
@@ -60,15 +59,15 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
 
         if(parsedData.type === "join-room"){
-
             if(!rooms[roomId]){
              rooms[roomId] = {
                 Player: [],
-                round: 3,
+                round: 1,
                 isCurrentlyDrawing: 0,
                 word: RandomWord()
              }
             }
+
             const detail = {
                 id: ConnectorId,
                 username: username,
@@ -83,43 +82,62 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 word: rooms[roomId].word
             }
 
+
             ws.send(JSON.stringify(payload))
 
         }
 
         if(parsedData.type === "start-play"){
-          
-            WordChanger();
-
-            const guessPayload = {
-                    type: "actual-word",
-                    roomId: roomId,
-                    username: username,
-                    word: rooms[roomId]?.word
+            
+            const Twoplayer = {
+                type: "need-player",
+                roomId: roomId
             }
+        
+            if(!(rooms[roomId] && rooms[roomId].Player.length > 2)){
+                rooms[roomId]?.Player.forEach(prev => {
+                    if(prev.socket.readyState === WebSocket.OPEN){
+                        prev.socket.send(JSON.stringify(Twoplayer))
+                    }
+                })
+            }else{
+                WordChanger();
 
-        function WordChanger(){
-            let Timeleft = 80;
-                let sec = setInterval(() => {
-                        Timeleft--;
-
-                    const TimingPayload = {
-                        type: "time",
+                const guessPayload = {
+                        type: "actual-word",
                         roomId: roomId,
-                        round: rooms[roomId]?.round,
-                        Timeleft: Timeleft
-                    }
-                    ws.send(JSON.stringify(TimingPayload))
-                    if(Timeleft === 0){
-                        rooms[roomId]?.Player.forEach((clients) => {
-                            if(clients.socket.readyState === WebSocket.OPEN){
-                                if(clients.socket == ws) return;
-                                clients.socket.send(JSON.stringify(guessPayload))
-                                return clearInterval(sec);
-                            }
+                        username: username,
+                        word: rooms[roomId]?.word
+                }
+
+            function WordChanger(){
+                let Timeleft = 80;
+                    let sec = setInterval(() => {
+                            Timeleft--;
+
+                        const TimingPayload = {
+                            type: "time",
+                            roomId: roomId,
+                            round: rooms[roomId]?.round,
+                            Timeleft: Timeleft
+                        }
+                        rooms[roomId]?.Player.forEach((client) => {
+                             if(client.socket.readyState === WebSocket.OPEN){
+                                    client.socket.send(JSON.stringify(TimingPayload))
+                                }
                         })
-                    }
-                }, 1000)
+                        if(Timeleft === 0){
+                            rooms[roomId]?.Player.forEach((clients) => {
+                                if(clients.socket.readyState === WebSocket.OPEN){
+                                    clearInterval(sec);
+                                    if(clients.socket == ws) return;
+                                    clients.socket.send(JSON.stringify(guessPayload))
+                                    
+                                }
+                            })
+                        }
+                    }, 1000)
+                }
             }
         }
 
