@@ -22,13 +22,15 @@ interface Rooms {
     round: number,
     isCurrentlyDrawing: number,
     word: string,
-    timer: number
+    timer: number,
+    isRoundRunning: boolean
 }
 
 interface Client {
     id: string
     username: string,
-    socket: WebSocket
+    socket: WebSocket,
+    points: number
 }
 
 const client = 8;
@@ -55,8 +57,6 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId;
         const username = parsedData.username;
-        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
-
 
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
@@ -64,6 +64,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 Player: [],
                 round: 1,
                 isCurrentlyDrawing: 0,
+                isRoundRunning: false,
                 word: RandomWord(),
                 timer: 80
              }
@@ -72,10 +73,13 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
             const detail = {
                 id: ConnectorId,
                 username: username,
-                socket: ws
+                socket: ws,
+                points: 75
             }
 
             rooms[roomId].Player.push(detail);
+            const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+
 
             if(PlayerIndex !== rooms[roomId].isCurrentlyDrawing){
                 const payload = {
@@ -107,72 +111,92 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         }
 
         if(parsedData.type === "start-play"){
-            
-            const Twoplayer = {
-                type: "need-player",
-                roomId: roomId
-            }
+            if(!rooms[roomId]) return;
+                const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
 
-            if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
+            if(rooms[roomId].isRoundRunning  === false){
+                const Twoplayer = {
+                    type: "need-player",
+                    roomId: roomId
+                }
 
-            if(!(rooms[roomId] && rooms[roomId].Player.length > 2)){
-                rooms[roomId]?.Player.forEach(prev => {
-                    if(prev.socket.readyState === WebSocket.OPEN){
-                        prev.socket.send(JSON.stringify(Twoplayer))
+                if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
+
+                if(!(rooms[roomId] && rooms[roomId].Player.length <= 2)){
+                    rooms[roomId]?.Player.forEach(prev => {
+                        if(prev.socket.readyState === WebSocket.OPEN){
+                            prev.socket.send(JSON.stringify(Twoplayer))
+                        }
+                    })
+                } 
+                else {
+
+                rooms[roomId].isRoundRunning = true;
+                
+                    WordChanger();
+                        const guessPayload = {
+                                type: "actual-word",
+                                roomId: roomId,
+                                username: username,
+                                word: rooms[roomId].word
+                        }
+
+                        function WordChanger(){
+
+                            let sec = setInterval(() => {
+
+                                if(!rooms[roomId]) return;
+                                rooms[roomId].timer--;
+
+                                const TimingPayload = {
+                                    type: "time",
+                                    roomId: roomId,
+                                    round: rooms[roomId].round,
+                                    Timeleft: rooms[roomId].timer
+                                }
+                                rooms[roomId].Player.forEach((client) => {
+                                    if(client.socket.readyState === WebSocket.OPEN){
+                                            client.socket.send(JSON.stringify(TimingPayload))
+                                        }
+                                })
+                                if(rooms[roomId].timer <= 0){
+                                    clearInterval(sec);
+                                    rooms[roomId].Player.forEach((clients) => {
+                                        if(clients.socket.readyState === WebSocket.OPEN){
+                                            if(clients.socket == ws) return;
+                                            clients.socket.send(JSON.stringify(guessPayload))
+                                        }
+                                    })
+                                        rooms[roomId].isRoundRunning = false;
+                                        if(rooms[roomId].round <= 5){
+                                            ws.send(JSON.stringify("And the winner is"))
+                                        } else{
+                                            rooms[roomId].round += 1;
+                                            rooms[roomId].isCurrentlyDrawing = (rooms[roomId].isCurrentlyDrawing + 1) % rooms[roomId].Player.length;
+                                            rooms[roomId].timer = 80
+                                            rooms[roomId].word = RandomWord()
+                                        }
+                                }
+                            }, 1000)
+                        }
+                    }
+            } else {
+                rooms[roomId].Player.forEach(clients => {
+                    if(clients.socket.readyState === WebSocket.OPEN){
+                        if(clients.socket === ws){
+                            clients.socket.send("Round has started")
+                        }
                     }
                 })
-            }else{
-                WordChanger();
-
-                const guessPayload = {
-                        type: "actual-word",
-                        roomId: roomId,
-                        username: username,
-                        word: rooms[roomId]?.word
-                }
-
-            function WordChanger(){
-
-                    let sec = setInterval(() => {
-
-                        if(!rooms[roomId]) return;
-                        rooms[roomId].timer--;
-
-                        const TimingPayload = {
-                            type: "time",
-                            roomId: roomId,
-                            round: rooms[roomId]?.round,
-                            Timeleft: rooms[roomId]?.timer
-                        }
-                        rooms[roomId]?.Player.forEach((client) => {
-                             if(client.socket.readyState === WebSocket.OPEN){
-                                    client.socket.send(JSON.stringify(TimingPayload))
-                                }
-                        })
-                        if(rooms[roomId].timer === 0){
-                            clearInterval(sec);
-                            rooms[roomId]?.Player.forEach((clients) => {
-                                if(clients.socket.readyState === WebSocket.OPEN){
-                                    if(clients.socket == ws) return;
-                                    clients.socket.send(JSON.stringify(guessPayload))
-                                }
-                            })
-
-                            if(rooms[roomId]){
-                                rooms[roomId].round += 1;
-                                rooms[roomId].isCurrentlyDrawing = (rooms[roomId].isCurrentlyDrawing + 1) % rooms[roomId].Player.findIndex(people => people.socket);
-                                if(rooms[roomId].round === 5){
-                                    ws.send(JSON.stringify("who is winner right"))
-                                }
-                                rooms[roomId].word = RandomWord()
-                            }
-                        }
-                    }, 1000)
-                }
             }
+           
         }
 
         if(parsedData.type === "chat-room"){
+            if(!rooms[roomId]) return;
+            const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
+
+            if(!rooms[roomId]) return;   
 
          const isCorrectGuess = parsedData.messages.trim().toLowerCase() === rooms[roomId]?.word.toLowerCase();
         
@@ -183,7 +207,11 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 messages: isCorrectGuess ? `${parsedData.username} has guessed the word`: parsedData.messages,
                 isCorrect: isCorrectGuess
             }
-            if(isCorrectGuess){
+            if(isCorrectGuess && PlayerIndex !== -1){
+                if(!rooms[roomId].Player[PlayerIndex])return;
+
+                rooms[roomId].Player[PlayerIndex].points +=50;
+
                 console.log("Ohh you matched it right")
             } 
             rooms[roomId]?.Player.forEach(player => {
@@ -194,6 +222,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         }
 
         if(parsedData.type === "StartDraw"){
+        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
 
             const BroadCastPayload = {
                 type: "StartDraw",
@@ -214,6 +243,8 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         }
 
         if(parsedData.type === "draw"){
+        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+
             const BroadCastPayload = {
                 type: "draw",
                 username: username,
@@ -233,6 +264,8 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         }
 
         if(parsedData.type === "StopDraw" || parsedData.type === "LeaveDraw"){
+        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+
             const BroadCastPayload = {
                 type: "StopDraw",
                 username: username,
