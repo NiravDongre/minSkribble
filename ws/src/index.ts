@@ -77,9 +77,9 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 points: 75
             }
 
-            rooms[roomId].Player.push(detail);
-            const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+        rooms[roomId].Player.push(detail);
 
+        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
 
             if(PlayerIndex !== rooms[roomId].isCurrentlyDrawing){
                 const payload = {
@@ -87,9 +87,17 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                     roomId: roomId,
                     username: username,
                 }
+                const addload = {
+                    type: "add-type",
+                    roomId: roomId,
+                    username: username
+                }
                 rooms[roomId].Player.forEach(clients => {
                     if(clients.socket.readyState === WebSocket.OPEN){
-                        clients.socket.send(JSON.stringify(payload))
+                        if(clients.socket !== ws){
+                            clients.socket.send(JSON.stringify(payload))
+                        }
+                        clients.socket.send(JSON.stringify(addload))
                     }
                 })
             } else {
@@ -112,17 +120,18 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
         if(parsedData.type === "start-play"){
             if(!rooms[roomId]) return;
-                const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+                const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
 
             if(rooms[roomId].isRoundRunning  === false){
                 const Twoplayer = {
                     type: "need-player",
-                    roomId: roomId
+                    roomId: roomId,
+                    message: "Need more player for starting"
                 }
 
                 if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
 
-                if(!(rooms[roomId] && rooms[roomId].Player.length <= 2)){
+                if(!(rooms[roomId] && rooms[roomId].Player.length < 2)){
                     rooms[roomId]?.Player.forEach(prev => {
                         if(prev.socket.readyState === WebSocket.OPEN){
                             prev.socket.send(JSON.stringify(Twoplayer))
@@ -168,7 +177,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                         }
                                     })
                                         rooms[roomId].isRoundRunning = false;
-                                        if(rooms[roomId].round <= 5){
+                                        if(rooms[roomId].round > 5){
                                             ws.send(JSON.stringify("And the winner is"))
                                         } else{
                                             rooms[roomId].round += 1;
@@ -181,10 +190,17 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                         }
                     }
             } else {
+                
+                const payload = {
+                    type: "already-started",
+                    roomId: roomId,
+                    message: "The button is already pressed"
+                }
+
                 rooms[roomId].Player.forEach(clients => {
                     if(clients.socket.readyState === WebSocket.OPEN){
                         if(clients.socket === ws){
-                            clients.socket.send("Round has started")
+                            clients.socket.send(JSON.stringify(payload))
                         }
                     }
                 })
@@ -264,7 +280,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         }
 
         if(parsedData.type === "StopDraw" || parsedData.type === "LeaveDraw"){
-        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
+            const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
 
             const BroadCastPayload = {
                 type: "StopDraw",
@@ -275,12 +291,11 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 return;
             }
             rooms[roomId]?.Player.forEach(player => {
-            if(player.socket.readyState === WebSocket.OPEN){
-                if(player.socket == ws)return;
-            player.socket.send(JSON.stringify(BroadCastPayload))
-            };
-        })
-    } 
-})
-
+                if(player.socket.readyState === WebSocket.OPEN){
+                    if(player.socket == ws)return;
+                player.socket.send(JSON.stringify(BroadCastPayload))
+                };
+            })
+        } 
+    })
 })

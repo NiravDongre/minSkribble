@@ -8,7 +8,7 @@ interface Setting {
 const Setting = ({Socket, roomId}: Setting) => {
     const [ timeleft, setTimeleft ] = useState(80);
     const [ startPlay, setStartPlay ] = useState(false);
-
+    const [ round, setRound ] = useState(1);
 
     function handler (){
         setStartPlay(true)
@@ -26,10 +26,18 @@ const Setting = ({Socket, roomId}: Setting) => {
     }
 
     const handleFunction = (messages) => {
-        const response = JSON.parse(messages.data)
+        const response = JSON.parse(messages.data);
+        
         if(response.type === "time"){
             setTimeleft(response.Timeleft)
-      }
+            setRound(response.round)
+        }
+        if(response.type === "need-player"){
+            alert(response.message)
+        }
+        if(response.type === "already-started"){
+            alert(response.message)
+        }
     }
 
     Socket.addEventListener("message", handleFunction)
@@ -44,6 +52,10 @@ const Setting = ({Socket, roomId}: Setting) => {
         <div className="flex justify-between p-4 bg-blue-400 border-black rounded-t-lg">
             <div className="p-2 font-bold text-md">
                 TimeLeft: {timeleft}
+            </div>
+
+            <div>
+                Round: {round}
             </div>
 
             <div>

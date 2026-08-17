@@ -13,7 +13,7 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
 
     const handleUser = (messages) => {
         const data = JSON.parse(messages.data);
-        if(data.type === "connect"){
+        if(data.type === "add-type"){
             setAllUser(prev =>  [...prev, data.username])
         }
     }
@@ -35,15 +35,19 @@ return (
                 </div>
             {allUser.map(people => {
                 return (
-                    <div>
-
-                    {people}
-                </div>
+                    <div className="flex justify-between">
+                        <div className="rounded-full flex items-center">
+                            {people[0]}
+                        </div>
+                        <div className="font-bold">
+                            {people}
+                        </div>
+                    </div>
                 )
             })}
         </div>
     </div>
-        </div>
+</div>
     )
 }
 

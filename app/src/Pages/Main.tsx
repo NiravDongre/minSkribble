@@ -22,6 +22,7 @@ export default function Main(){
 
       if(response.type === "connect"){
         setWord(response.word)
+        console.log(response.word)
         console.log(`Connection established Successfully`)
       }
 
