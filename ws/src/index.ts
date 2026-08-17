@@ -16,13 +16,13 @@ function RandomWord(){
     return mixedword[Math.floor(Math.random() * mixedword.length)] || "";
 }
 
-const word = RandomWord();
 
 interface Rooms {
     Player: Client[],
     round: number,
     isCurrentlyDrawing: number,
-    word: string
+    word: string,
+    timer: number
 }
 
 interface Client {
@@ -64,7 +64,8 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 Player: [],
                 round: 1,
                 isCurrentlyDrawing: 0,
-                word: RandomWord()
+                word: RandomWord(),
+                timer: 80
              }
             }
 
@@ -73,18 +74,36 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 username: username,
                 socket: ws
             }
+
             rooms[roomId].Player.push(detail);
 
-            const payload = {
-                type: "connect",
-                roomId: roomId,
-                username: username,
-                word: rooms[roomId].word
+            if(PlayerIndex !== rooms[roomId].isCurrentlyDrawing){
+                const payload = {
+                    type: "connect",
+                    roomId: roomId,
+                    username: username,
+                }
+                rooms[roomId].Player.forEach(clients => {
+                    if(clients.socket.readyState === WebSocket.OPEN){
+                        clients.socket.send(JSON.stringify(payload))
+                    }
+                })
+            } else {
+                const payload = {
+                    type: "connect",
+                    roomId: roomId,
+                    username: username,
+                    word: rooms[roomId].word
+                }
+
+                rooms[roomId]?.Player.forEach(player => {
+                    if(player.socket.readyState === WebSocket.OPEN){
+                        if(player.socket == ws){
+                            player.socket.send(JSON.stringify(payload))
+                        }
+                    }
+                }) 
             }
-
-
-            ws.send(JSON.stringify(payload))
-
         }
 
         if(parsedData.type === "start-play"){
@@ -93,7 +112,9 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 type: "need-player",
                 roomId: roomId
             }
-        
+
+            if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
+
             if(!(rooms[roomId] && rooms[roomId].Player.length > 2)){
                 rooms[roomId]?.Player.forEach(prev => {
                     if(prev.socket.readyState === WebSocket.OPEN){
@@ -111,30 +132,40 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 }
 
             function WordChanger(){
-                let Timeleft = 80;
+
                     let sec = setInterval(() => {
-                            Timeleft--;
+
+                        if(!rooms[roomId]) return;
+                        rooms[roomId].timer--;
 
                         const TimingPayload = {
                             type: "time",
                             roomId: roomId,
                             round: rooms[roomId]?.round,
-                            Timeleft: Timeleft
+                            Timeleft: rooms[roomId]?.timer
                         }
                         rooms[roomId]?.Player.forEach((client) => {
                              if(client.socket.readyState === WebSocket.OPEN){
                                     client.socket.send(JSON.stringify(TimingPayload))
                                 }
                         })
-                        if(Timeleft === 0){
+                        if(rooms[roomId].timer === 0){
+                            clearInterval(sec);
                             rooms[roomId]?.Player.forEach((clients) => {
                                 if(clients.socket.readyState === WebSocket.OPEN){
-                                    clearInterval(sec);
                                     if(clients.socket == ws) return;
                                     clients.socket.send(JSON.stringify(guessPayload))
-                                    
                                 }
                             })
+
+                            if(rooms[roomId]){
+                                rooms[roomId].round += 1;
+                                rooms[roomId].isCurrentlyDrawing = (rooms[roomId].isCurrentlyDrawing + 1) % rooms[roomId].Player.findIndex(people => people.socket);
+                                if(rooms[roomId].round === 5){
+                                    ws.send(JSON.stringify("who is winner right"))
+                                }
+                                rooms[roomId].word = RandomWord()
+                            }
                         }
                     }, 1000)
                 }
@@ -143,7 +174,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
         if(parsedData.type === "chat-room"){
 
-         const isCorrectGuess = parsedData.messages.trim().toLowerCase() === word?.toLowerCase();
+         const isCorrectGuess = parsedData.messages.trim().toLowerCase() === rooms[roomId]?.word.toLowerCase();
         
             const BroadCastPayload = {
                 type: "chat-room",
@@ -175,10 +206,10 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 return;
             }
             rooms[roomId]?.Player.forEach(player => {
-                    if(player.socket.readyState === WebSocket.OPEN){
-                        if(player.socket == ws)return;
+                if(player.socket.readyState === WebSocket.OPEN){
+                    if(player.socket == ws)return;
                     player.socket.send(JSON.stringify(BroadCastPayload))
-                    } return;
+                }
              })
         }
 
