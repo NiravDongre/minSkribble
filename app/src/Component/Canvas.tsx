@@ -3,18 +3,19 @@ import React, { memo, useEffect, useRef, useState } from "react";
 interface Canvas {
     Socket: WebSocket,
     username: string,
-    roomId: string
+    roomId: string,
+    isDrawer: boolean
 }
 
-const Canvas = ({Socket, username, roomId}: Canvas) => {
+const Canvas = ({Socket, username, roomId, isDrawer}: Canvas) => {
     const CanvasRef = useRef<HTMLCanvasElement | null>(null);
     const ContextRef = useRef(null);
     const [ drawing, setDrawing ] = useState(false)
 
 useEffect(() => { 
     const canvas = CanvasRef.current;
-    canvas.height = 700; 
-    canvas.width = 800;
+    canvas.height = 600; 
+    canvas.width = 900;
     const ctx = canvas.getContext('2d');
     ctx.lineCap = "round"; 
     ctx.lineWidth = 1;
@@ -45,6 +46,7 @@ useEffect(() => {
 
 
     const startdraw = (e: React.MouseEvent) => {
+        if (!isDrawer) return;
             const { offsetX, offsetY } = e.nativeEvent; 
             ContextRef.current.beginPath(); 
             ContextRef.current.moveTo(offsetX, offsetY) 
@@ -65,6 +67,7 @@ useEffect(() => {
     }
 
     const movedraw = (e : React.MouseEvent) => {
+        if (!isDrawer) return;
         if(!drawing) return; 
             const { offsetX, offsetY } = e.nativeEvent; 
             ContextRef.current.lineTo(offsetX, offsetY) 
@@ -81,6 +84,7 @@ useEffect(() => {
     } 
     
     const stoptdraw = () => { 
+        if (!isDrawer) return;
         ContextRef.current.closePath();
         setDrawing(false) 
         const StopDrawPayload = {
@@ -91,6 +95,7 @@ useEffect(() => {
         Socket.send(JSON.stringify(StopDrawPayload));
     }     
     const leavedraw = () => {
+        if (!isDrawer) return;
         if(!drawing){
             setDrawing(false)
         }  

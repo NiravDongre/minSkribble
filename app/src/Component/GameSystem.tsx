@@ -33,6 +33,7 @@ const Setting = ({Socket, roomId}: Setting) => {
             setRound(response.round)
         }
         if(response.type === "need-player"){
+            setStartPlay(false)
             alert(response.message)
         }
         if(response.type === "already-started"){

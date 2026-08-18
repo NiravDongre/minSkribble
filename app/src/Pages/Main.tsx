@@ -10,7 +10,8 @@ export default function Main(){
   const location = useLocation();
   const [ messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
-  const [ word, setWord ] = useState("");
+  const [ word, setWord ] = useState("");4
+  const [ isDrawer, setIsDrawer ] = useState(false);
   const { username, roomId } = location.state || { username: "", roomId: "" }
 
   useEffect(() => {
@@ -20,10 +21,12 @@ export default function Main(){
     something.onmessage = (message) => {
       const response = JSON.parse(message.data);
 
-      if(response.type === "connect"){
-        setWord(response.word)
-        console.log(response.word)
-        console.log(`Connection established Successfully`)
+      if(response.type === "player-role"){
+          setIsDrawer(response.isDrawer);
+
+          if(response.isDrawer){
+              setWord(response.word);
+          }
       }
 
       if(response.type === "actual-word"){
@@ -85,7 +88,7 @@ export default function Main(){
   <Setting Socket={Socket} roomId={roomId}/>
 
     {Socket ? (
-        <Canvas Socket={Socket} username={username} roomId={roomId} />
+        <Canvas Socket={Socket} username={username} roomId={roomId} isDrawer={isDrawer} />
     ) : (
         <div>Connecting to whiteboard server...</div>
     )}

@@ -1,7 +1,6 @@
 import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
 import cors from "cors";
-
 const app = express();
 app.use(cors());
 
@@ -15,7 +14,6 @@ const mixedword = ["animals", "sport", "world", "trees", "jungle"];
 function RandomWord(){
     return mixedword[Math.floor(Math.random() * mixedword.length)] || "";
 }
-
 
 interface Rooms {
     Player: Client[],
@@ -36,18 +34,14 @@ interface Client {
 const client = 8;
 
 function guid() {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
+    var S4 = function() { return (((1+Math.random())*0x10000)|0).toString(16).substring(1); };
     return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
 
 const rooms : Record<string, Rooms> = {}
-
 const wss = new WebSocketServer({ server: httpServer});
 
 wss.on("connection", (ws) => {
-
 const ConnectorId = guid();
 
 console.log(`this is the id of player i guess ${ConnectorId}`)
@@ -77,45 +71,19 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 points: 75
             }
 
-        rooms[roomId].Player.push(detail);
+            rooms[roomId].Player.push(detail);
 
-        const PlayerIndex = rooms[roomId]?.Player.findIndex(player =>  player.socket === ws);
-
-            if(PlayerIndex !== rooms[roomId].isCurrentlyDrawing){
-                const payload = {
-                    type: "connect",
-                    roomId: roomId,
-                    username: username,
-                }
                 const addload = {
                     type: "add-type",
                     roomId: roomId,
                     username: username
                 }
+
                 rooms[roomId].Player.forEach(clients => {
                     if(clients.socket.readyState === WebSocket.OPEN){
-                        if(clients.socket !== ws){
-                            clients.socket.send(JSON.stringify(payload))
-                        }
                         clients.socket.send(JSON.stringify(addload))
                     }
-                })
-            } else {
-                const payload = {
-                    type: "connect",
-                    roomId: roomId,
-                    username: username,
-                    word: rooms[roomId].word
-                }
-
-                rooms[roomId]?.Player.forEach(player => {
-                    if(player.socket.readyState === WebSocket.OPEN){
-                        if(player.socket == ws){
-                            player.socket.send(JSON.stringify(payload))
-                        }
-                    }
-                }) 
-            }
+            })
         }
 
         if(parsedData.type === "start-play"){
@@ -131,7 +99,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
                 if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
 
-                if(!(rooms[roomId] && rooms[roomId].Player.length < 2)){
+                if(!(rooms[roomId] && rooms[roomId].Player.length >= 2)){
                     rooms[roomId]?.Player.forEach(prev => {
                         if(prev.socket.readyState === WebSocket.OPEN){
                             prev.socket.send(JSON.stringify(Twoplayer))
@@ -139,8 +107,25 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                     })
                 } 
                 else {
-
+                    
                 rooms[roomId].isRoundRunning = true;
+
+                const currentDrawer = rooms[roomId].Player[rooms[roomId].isCurrentlyDrawing];
+                if(!currentDrawer) return;
+                rooms[roomId].Player.forEach(player => {
+                    const rolePayload = {
+                        type: "player-role",
+                        roomId: roomId,
+                        isDrawer: player.socket === currentDrawer.socket,
+                        word: player.socket === currentDrawer.socket
+                            ? rooms[roomId]?.word
+                            : undefined
+                    };
+
+                    if (player.socket.readyState === WebSocket.OPEN) {
+                        player.socket.send(JSON.stringify(rolePayload));
+                    }
+                });
                 
                     WordChanger();
                         const guessPayload = {
