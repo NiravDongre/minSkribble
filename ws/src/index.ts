@@ -169,21 +169,22 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                             const isDrawer = rooms[roomId].Player[rooms[roomId].isCurrentlyDrawing]
 
                                         if(rooms[roomId].round > 5){
-                                            ws.send(JSON.stringify("And the winner is"))
-                                        }
-
-                                    rooms[roomId].Player.forEach((clients) => {
-                                            const playerPayload = {
-                                            type: "new-Drawer",
-                                            roomId: roomId,
-                                            round: rooms[roomId]?.round,
-                                            isDrawer: clients.socket == isDrawer?.socket,
-                                            Drawer: isDrawer?.username,
-                                            time: rooms[roomId]?.timer,
-                                            word: clients.socket == isDrawer?.socket ? rooms[roomId]?.word : undefined
-                                        }
-                                        clients.socket.send(JSON.stringify(playerPayload))
-                                    })    
+                                            ws.send(JSON.stringify(""))
+                                        } else{
+                                        rooms[roomId].Player.forEach((clients) => {
+                                                const playerPayload = {
+                                                type: "new-Drawer",
+                                                roomId: roomId,
+                                                round: rooms[roomId]?.round,
+                                                isDrawer: clients.socket == isDrawer?.socket,
+                                                Drawer: isDrawer?.username,
+                                                time: rooms[roomId]?.timer,
+                                                word: clients.socket == isDrawer?.socket ? rooms[roomId]?.word : undefined
+                                            }
+                                            clients.socket.send(JSON.stringify(playerPayload))
+                                        }) 
+                                    }
+   
                                 }
                             }, 1000)
                         }
