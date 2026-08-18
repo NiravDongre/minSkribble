@@ -117,6 +117,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                         type: "player-role",
                         roomId: roomId,
                         isDrawer: player.socket === currentDrawer.socket,
+                        round: rooms[roomId]?.round,
                         word: player.socket === currentDrawer.socket
                             ? rooms[roomId]?.word
                             : undefined
@@ -145,13 +146,12 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                 const TimingPayload = {
                                     type: "time",
                                     roomId: roomId,
-                                    round: rooms[roomId].round,
                                     Timeleft: rooms[roomId].timer
                                 }
                                 rooms[roomId].Player.forEach((client) => {
                                     if(client.socket.readyState === WebSocket.OPEN){
                                             client.socket.send(JSON.stringify(TimingPayload))
-                                        }
+                                    }
                                 })
                                 if(rooms[roomId].timer <= 0){
                                     clearInterval(sec);
@@ -161,15 +161,29 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                             clients.socket.send(JSON.stringify(guessPayload))
                                         }
                                     })
-                                        rooms[roomId].isRoundRunning = false;
+                                            rooms[roomId].isRoundRunning = false;
+                                            rooms[roomId].word = RandomWord()
+                                            rooms[roomId].round += 1
+                                            rooms[roomId].isCurrentlyDrawing = (rooms[roomId].isCurrentlyDrawing + 1) % rooms[roomId].Player.length;
+                                            rooms[roomId].timer = 80;
+                                            const isDrawer = rooms[roomId].Player[rooms[roomId].isCurrentlyDrawing]
+
                                         if(rooms[roomId].round > 5){
                                             ws.send(JSON.stringify("And the winner is"))
-                                        } else{
-                                            rooms[roomId].round += 1;
-                                            rooms[roomId].isCurrentlyDrawing = (rooms[roomId].isCurrentlyDrawing + 1) % rooms[roomId].Player.length;
-                                            rooms[roomId].timer = 80
-                                            rooms[roomId].word = RandomWord()
                                         }
+
+                                    rooms[roomId].Player.forEach((clients) => {
+                                            const playerPayload = {
+                                            type: "new-Drawer",
+                                            roomId: roomId,
+                                            round: rooms[roomId]?.round,
+                                            isDrawer: clients.socket == isDrawer?.socket,
+                                            Drawer: isDrawer?.username,
+                                            time: rooms[roomId]?.timer,
+                                            word: clients.socket == isDrawer?.socket ? rooms[roomId]?.word : undefined
+                                        }
+                                        clients.socket.send(JSON.stringify(playerPayload))
+                                    })    
                                 }
                             }, 1000)
                         }

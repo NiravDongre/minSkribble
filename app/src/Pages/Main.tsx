@@ -13,6 +13,10 @@ export default function Main(){
   const [ word, setWord ] = useState("");4
   const [ isDrawer, setIsDrawer ] = useState(false);
   const { username, roomId } = location.state || { username: "", roomId: "" }
+  const [ round, setRound ] = useState(1);
+  const [ timeleft, setTimeleft ] = useState(80);
+  const [ startPlay, setStartPlay ] = useState(false);
+
 
   useEffect(() => {
 
@@ -22,8 +26,9 @@ export default function Main(){
       const response = JSON.parse(message.data);
 
       if(response.type === "player-role"){
+          setStartPlay(false)
           setIsDrawer(response.isDrawer);
-
+          setRound(response.round)
           if(response.isDrawer){
               setWord(response.word);
           }
@@ -31,6 +36,16 @@ export default function Main(){
 
       if(response.type === "actual-word"){
         alert(`The word was ${response.word}`)
+      }
+
+      if(response.type === "new-Drawer"){
+        setIsDrawer(response.isDrawer);
+        setTimeleft(response.time)
+        if(response.isDrawer){
+          alert(`${response.Drawer} is drawing`)
+          setWord(response.word)
+        }
+        
       }
 
       if(response.type === "chat-room"){
@@ -85,7 +100,14 @@ export default function Main(){
 
 <div>
 
-  <Setting Socket={Socket} roomId={roomId}/>
+  <Setting Socket={Socket} 
+          setTimeleft={setTimeleft} 
+          timeleft={timeleft} 
+          round={round} 
+          setStartPlay={setStartPlay} 
+          startPlay={startPlay} 
+          roomId={roomId}
+  />
 
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} isDrawer={isDrawer} />

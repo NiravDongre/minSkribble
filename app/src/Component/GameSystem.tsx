@@ -1,14 +1,25 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect } from "react";
 
 interface Setting {
     Socket: WebSocket,
-    roomId: string
+    roomId: string,
+    round: number,
+    setTimeleft: React.Dispatch<SetStateAction<number>>,
+    setStartPlay: React.Dispatch<SetStateAction<boolean>>,
+    timeleft: number,
+    startPlay: boolean
 }
 
-const Setting = ({Socket, roomId}: Setting) => {
-    const [ timeleft, setTimeleft ] = useState(80);
-    const [ startPlay, setStartPlay ] = useState(false);
-    const [ round, setRound ] = useState(1);
+const Setting = (
+            {Socket, 
+                roomId,
+                round, 
+                setTimeleft, 
+                timeleft,
+                setStartPlay,
+                startPlay
+            }: Setting) => {
+
 
     function handler (){
         setStartPlay(true)
@@ -30,7 +41,6 @@ const Setting = ({Socket, roomId}: Setting) => {
         
         if(response.type === "time"){
             setTimeleft(response.Timeleft)
-            setRound(response.round)
         }
         if(response.type === "need-player"){
             setStartPlay(false)
