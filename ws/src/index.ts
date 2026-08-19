@@ -72,11 +72,13 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
             }
 
             rooms[roomId].Player.push(detail);
+            const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
 
                 const addload = {
                     type: "add-type",
                     roomId: roomId,
-                    username: username
+                    username: username,
+                    points: rooms[roomId].Player[PlayerIndex]?.points
                 }
 
                 rooms[roomId].Player.forEach(clients => {
@@ -168,6 +170,16 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                             rooms[roomId].timer = 80;
                                             const isDrawer = rooms[roomId].Player[rooms[roomId].isCurrentlyDrawing]
 
+
+                                            const ClearCanvas = {
+                                                type: "clear-canvas",
+                                                roomId: roomId
+                                            }
+
+                                            rooms[roomId].Player.forEach((clients) => {
+                                                clients.socket.send(JSON.stringify(ClearCanvas))
+                                            })
+                                            
                                         if(rooms[roomId].round > 5){
                                             ws.send(JSON.stringify(""))
                                         } else{
@@ -208,6 +220,17 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
            
         }
 
+        if(parsedData.type === "erase-canvas"){
+            const ClearCanvas = {
+                type: "clear-canvas",
+                roomId: roomId
+            }
+
+            rooms[roomId]?.Player.forEach((clients) => {
+                clients.socket.send(JSON.stringify(ClearCanvas))
+            })
+        }
+
         if(parsedData.type === "chat-room"){
             if(!rooms[roomId]) return;
             const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
@@ -227,6 +250,16 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 if(!rooms[roomId].Player[PlayerIndex])return;
 
                 rooms[roomId].Player[PlayerIndex].points +=50;
+
+                const pointload = {
+                    type: "pointplus",
+                    roomId: roomId,
+                    points: rooms[roomId].Player[PlayerIndex]?.points
+                }
+
+                rooms[roomId].Player.forEach((clients) => {
+                    clients.socket.send(JSON.stringify(pointload))
+                })
 
                 console.log("Ohh you matched it right")
             } 

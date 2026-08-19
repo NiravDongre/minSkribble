@@ -24,30 +24,51 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
     };
     }, [Socket])
 
-
 return (
-<div className="bg-yellow-500">
-    <div className="text-sm text-gray-500 text-center">
-      <h1>Room: {roomId}</h1>
-        <div>
-            <div>
-                Players
+        <div className="w-full rounded-xl bg-white p-4 shadow-lg">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between border-b pb-3">
+                <div>
+                    <h2 className="text-lg font-bold text-gray-800">
+                        Players
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                        Room: {roomId}
+                    </p>
                 </div>
-            {allUser.map(people => {
-                return (
-                    <div className="flex justify-between">
-                        <div className="rounded-full flex items-center">
-                            {people[0]}
+
+                <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-600">
+                    {allUser.length}
+                </div>
+            </div>
+
+            {/* Player List */}
+            <div className="space-y-2">
+                {allUser.map((people, index) => (
+                    <div
+                        key={index}
+                        className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 transition hover:bg-gray-100"
+                    >
+                        <div className="flex items-center gap-3">
+                            {/* Avatar */}
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 font-bold text-white">
+                                {people[0]?.toUpperCase()}
+                            </div>
+
+                            {/* Username */}
+                            <span className="font-medium text-gray-800">
+                                {people}
+                            </span>
                         </div>
-                        <div className="font-bold">
-                            {people}
-                        </div>
+
+                        {/* Score */}
+                        <span className="font-bold text-gray-700">
+                            0
+                        </span>
                     </div>
-                )
-            })}
+                ))}
+            </div>
         </div>
-    </div>
-</div>
     )
 }
 

@@ -4,6 +4,7 @@ import Chat from "../Component/Chat";
 import LeaderBoard from "../Component/LeaderBoard";
 import { useLocation } from "react-router-dom";
 import Setting from "../Component/GameSystem";
+import CanavsBottom from "../Component/CanvasLowerLayer";
 const something = new WebSocket("ws://localhost:8080");
 
 export default function Main(){
@@ -44,7 +45,7 @@ export default function Main(){
         if(response.isDrawer){
           alert(`${response.Drawer} is drawing`)
           setWord(response.word)
-        }
+        } setWord(undefined)
         
       }
 
@@ -100,25 +101,27 @@ export default function Main(){
 
 <div>
 
-  <Setting Socket={Socket} 
+{ isDrawer ?  <Setting Socket={Socket} 
           setTimeleft={setTimeleft} 
           timeleft={timeleft} 
           round={round} 
           setStartPlay={setStartPlay} 
           startPlay={startPlay} 
           roomId={roomId}
-  />
-
+  /> : <div></div>
+} 
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} isDrawer={isDrawer} />
     ) : (
         <div>Connecting to whiteboard server...</div>
     )}
+
+{ isDrawer ? <CanavsBottom Socket={Socket} roomId={roomId}/> : <div></div>}
 </div>
 
       <div className="h-full p-10 flex justify-center items-center">
 
-      <div className="bg-blue-400 rounded-xl h-[800px] w-[400px] flex flex-col justify-between p-4">
+      <div className="bg-blue-400 rounded-xl h-[738px] w-[400px] flex flex-col justify-between p-4">
         
         {/* 1. Scrollable message logs area at the top */}
         <div className="flex-1 overflow-y-auto flex flex-col gap-2 mb-4">

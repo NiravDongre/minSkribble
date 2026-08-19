@@ -25,6 +25,9 @@ useEffect(() => {
     const handleFunction = (message) => {
         const response = JSON.parse(message.data);
         const ctx = ContextRef.current;
+            if(response.type === "clear-canvas"){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
             if(response.type === "StartDraw"){
                 ctx.moveTo(response.x, response.y)
                 ctx.beginPath();
@@ -70,14 +73,16 @@ useEffect(() => {
         if (!isDrawer) return;
         if(!drawing) return; 
             const { offsetX, offsetY } = e.nativeEvent; 
-            ContextRef.current.lineTo(offsetX, offsetY) 
-            const DrawingPayload = { 
-                type: "draw", 
-                username: username, 
-                roomId: roomId, 
-                x: offsetX, 
-                y: offsetY 
-            } 
+            ContextRef.current.lineTo(offsetX, offsetY);
+
+        const DrawingPayload = { 
+            type: "draw", 
+            username: username, 
+            roomId: roomId, 
+            x: offsetX, 
+            y: offsetY 
+        
+        } 
     Socket.send(JSON.stringify(DrawingPayload))
         ContextRef.current.stroke()
         e.preventDefault() 
