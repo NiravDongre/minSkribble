@@ -14,8 +14,18 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
     const handleUser = (messages) => {
         const data = JSON.parse(messages.data);
         if(data.type === "add-type"){
-            setAllUser(prev =>  [...prev, data.username])
+            setAllUser(prev =>  [...prev,{ username: data.username, points: data.point, id: data.id }])
         }
+        if(data.type === "pointplus"){
+        setAllUser(prev =>
+                prev.map(player =>
+                    player.username === data.username
+                        ? { ...player, points: data.points , id: data.id }
+                        : player
+                )
+            );
+        }
+
     }
     Socket.addEventListener("message", handleUser)
 
@@ -44,26 +54,26 @@ return (
 
             {/* Player List */}
             <div className="space-y-2">
-                {allUser.map((people, index) => (
+                {allUser.map((people) => (
                     <div
-                        key={index}
+                        key={people.id}
                         className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 transition hover:bg-gray-100"
                     >
                         <div className="flex items-center gap-3">
                             {/* Avatar */}
                             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 font-bold text-white">
-                                {people[0]?.toUpperCase()}
+                                {people.username[0]?.toUpperCase()}
                             </div>
 
                             {/* Username */}
                             <span className="font-medium text-gray-800">
-                                {people}
+                                {people.username}
                             </span>
                         </div>
 
                         {/* Score */}
                         <span className="font-bold text-gray-700">
-                            0
+                            {people.points}
                         </span>
                     </div>
                 ))}

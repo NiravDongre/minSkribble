@@ -77,6 +77,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 const addload = {
                     type: "add-type",
                     roomId: roomId,
+                    id: rooms[roomId].Player[PlayerIndex]?.id,
                     username: username,
                     points: rooms[roomId].Player[PlayerIndex]?.points
                 }
@@ -152,7 +153,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                 }
                                 rooms[roomId].Player.forEach((client) => {
                                     if(client.socket.readyState === WebSocket.OPEN){
-                                            client.socket.send(JSON.stringify(TimingPayload))
+                                        client.socket.send(JSON.stringify(TimingPayload))
                                     }
                                 })
                                 if(rooms[roomId].timer <= 0){
@@ -181,7 +182,20 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                             })
                                             
                                         if(rooms[roomId].round > 5){
-                                            ws.send(JSON.stringify(""))
+                                            rooms[roomId].Player.forEach(clients => {
+                                                const messages = {
+                                                    type: "Game-Over",
+                                                    message: "The game is ending thank you for your experience"
+                                                }
+                                                clients.socket.send(JSON.stringify(message))
+                                            })
+
+                                            rooms[roomId].Player.forEach( clients => {
+                                                clients.socket.close()
+                                            })
+
+                                            delete rooms[roomId]
+                                            return;
                                         } else{
                                         rooms[roomId].Player.forEach((clients) => {
                                                 const playerPayload = {
@@ -254,7 +268,9 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 const pointload = {
                     type: "pointplus",
                     roomId: roomId,
-                    points: rooms[roomId].Player[PlayerIndex]?.points
+                    id: rooms[roomId].Player[PlayerIndex].id,
+                    username: username,
+                    points: rooms[roomId].Player[PlayerIndex].points
                 }
 
                 rooms[roomId].Player.forEach((clients) => {
