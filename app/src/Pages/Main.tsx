@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 import Setting from "../Component/GameSystem";
 import CanavsBottom from "../Component/CanvasLowerLayer";
 import LeaveGame from "../Component/LeaveGame";
-const something = new WebSocket("ws://localhost:8080");
+const something = new WebSocket(import.meta.env.WEBSOCKET_URL);
 import { useNavigate } from "react-router-dom";
 
 export default function Main(){
@@ -59,7 +59,7 @@ export default function Main(){
       if(response.type === "player-left"){
         alert(`${response.username} has left`)
       }
-      
+
       if(response.type === "new-Drawer"){
         setIsDrawer(response.isDrawer);
         setTimeleft(response.time)

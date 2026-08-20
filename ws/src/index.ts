@@ -7,9 +7,11 @@ interface ExtendedWebSocket extends WebSocket {
 }
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
 
-const port = 8080
+const port = process.env.PORT
 const httpServer = app.listen(port, () => {
     console.log(`The App is listening on ${port}`)
 })
@@ -386,7 +388,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
             }
 
             ws.send(JSON.stringify(LeaveRoom))
-            
+
             rooms[roomId].Player.forEach((clients) => {
                 clients.socket.send(JSON.stringify({
                     type: "player-left",
