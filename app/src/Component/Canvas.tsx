@@ -13,10 +13,12 @@ const Canvas = ({Socket, username, roomId, isDrawer}: Canvas) => {
     const [ drawing, setDrawing ] = useState(false)
 
 useEffect(() => { 
+    if (!CanvasRef.current) return;
     const canvas = CanvasRef.current;
     canvas.height = 600; 
     canvas.width = 900;
     const ctx = canvas.getContext('2d');
+    if(!ctx) return;
     ctx.lineCap = "round"; 
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#000'; 
@@ -25,7 +27,9 @@ useEffect(() => {
     const handleFunction = (message: MessageEvent) => {
         const response = JSON.parse(message.data);
         const ctx = ContextRef.current;
-            if(response.type === "clear-canvas"){
+        if(!ctx) return;
+
+        if(response.type === "clear-canvas"){
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
             if(response.type === "StartDraw"){
