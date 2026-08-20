@@ -1,6 +1,11 @@
 import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
 import cors from "cors";
+
+interface ExtendedWebSocket extends WebSocket {
+    roomId: string;
+}
+
 const app = express();
 app.use(cors());
 
@@ -41,7 +46,7 @@ function guid() {
 const rooms : Record<string, Rooms> = {}
 const wss = new WebSocketServer({ server: httpServer});
 
-wss.on("connection", (ws) => {
+wss.on("connection", (ws: ExtendedWebSocket) => {
 const ConnectorId = guid();
 
 console.log(`this is the id of player i guess ${ConnectorId}`)
@@ -51,6 +56,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
         const parsedData  = JSON.parse(message as string);
         const roomId = parsedData.roomId;
         const username = parsedData.username;
+        ws.roomId = roomId;
 
         if(parsedData.type === "join-room"){
             if(!rooms[roomId]){
@@ -349,11 +355,22 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
 
         if(parsedData.type === "leave-room"){
-            const PlayerIndex = rooms[roomId]?.Player.findIndex(prev => prev.socket === ws);
+            if(!rooms[roomId]) return;
+            const PlayerIndex = rooms[roomId].Player.findIndex(prev => prev.socket === ws);
 
-            rooms[roomId]?.Player.forEach(clients => {
-                clients.socket.close(PlayerIndex)
-            })
+            if(PlayerIndex === -1) return;
+
+            rooms[roomId].Player.splice(PlayerIndex, 1);
+
+            if(rooms[roomId].Player.length === 0){
+                delete rooms[roomId]
+            }
         }
+    })
+
+    ws.on("close", () => {
+        const PlayerIndex = rooms[ws.roomId]?.Player.findIndex(prev => prev.socket === ws);
+        if(PlayerIndex === -1 || PlayerIndex === undefined) return;
+        rooms[ws.roomId]?.Player.splice(PlayerIndex, 1);
     })
 })
