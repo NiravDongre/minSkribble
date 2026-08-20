@@ -55,7 +55,7 @@ useEffect(() => {
     const startdraw = (e: React.MouseEvent) => {
         if (!isDrawer) return;
             const { offsetX, offsetY } = e.nativeEvent; 
-            if(!ContextRef)return;
+            if(!ContextRef.current)return;
             ContextRef.current.beginPath(); 
             ContextRef.current.moveTo(offsetX, offsetY) 
             ContextRef.current.lineTo(offsetX, offsetY) 
@@ -77,6 +77,7 @@ useEffect(() => {
     const movedraw = (e : React.MouseEvent) => {
         if (!isDrawer) return;
         if(!drawing) return; 
+        if(!CanvasRef.current) return;
             const { offsetX, offsetY } = e.nativeEvent; 
             ContextRef.current.lineTo(offsetX, offsetY);
 
@@ -95,7 +96,7 @@ useEffect(() => {
     
     const stoptdraw = () => { 
         if (!isDrawer) return;
-        if(!ContextRef) return;
+        if(!ContextRef.current) return;
         ContextRef.current.closePath();
         setDrawing(false) 
         const StopDrawPayload = {
