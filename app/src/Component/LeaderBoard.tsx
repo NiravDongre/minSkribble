@@ -17,7 +17,7 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
 
     useEffect(() => {
 
-    const handleUser = (messages) => {
+    const handleUser = (messages: MessageEvent) => {
         const data = JSON.parse(messages.data);
         if(data.type === "add-type"){
             setAllUser(prev =>  [...prev,{ username: data.username, points: data.points, id: data.id }])

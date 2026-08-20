@@ -36,7 +36,7 @@ const Setting = (
         Socket.send(JSON.stringify(payload))   
     }
 
-    const handleFunction = (messages) => {
+    const handleFunction = (messages: MessageEvent) => {
         const response = JSON.parse(messages.data);
         
         if(response.type === "time"){
