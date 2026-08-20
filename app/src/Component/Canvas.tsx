@@ -93,6 +93,8 @@ useEffect(() => {
             Socket.send(JSON.stringify(DrawingPayload))
             ContextRef.current.stroke()
             e.preventDefault() 
+        } else {
+            return;
         }
     } 
     
