@@ -9,7 +9,7 @@ interface Canvas {
 
 const Canvas = ({Socket, username, roomId, isDrawer}: Canvas) => {
     const CanvasRef = useRef<HTMLCanvasElement | null>(null);
-    const ContextRef = useRef(null);
+    const ContextRef = useRef<CanvasRenderingContext2D | null>(null);
     const [ drawing, setDrawing ] = useState(false)
 
 useEffect(() => { 
@@ -22,7 +22,7 @@ useEffect(() => {
     ctx.strokeStyle = '#000'; 
     ContextRef.current = ctx;
 
-    const handleFunction = (message) => {
+    const handleFunction = (message: MessageEvent) => {
         const response = JSON.parse(message.data);
         const ctx = ContextRef.current;
             if(response.type === "clear-canvas"){
