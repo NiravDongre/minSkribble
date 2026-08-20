@@ -5,9 +5,12 @@ import LeaderBoard from "../Component/LeaderBoard";
 import { useLocation } from "react-router-dom";
 import Setting from "../Component/GameSystem";
 import CanavsBottom from "../Component/CanvasLowerLayer";
+import LeaveGame from "../Component/LeaveGame";
 const something = new WebSocket("ws://localhost:8080");
+import { useNavigate } from "react-router-dom";
 
 export default function Main(){
+  const navigate = useNavigate();
   const location = useLocation();
   const [ messages , setMessages] = useState([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
@@ -17,7 +20,7 @@ export default function Main(){
   const [ round, setRound ] = useState(1);
   const [ timeleft, setTimeleft ] = useState(80);
   const [ startPlay, setStartPlay ] = useState(false);
-
+  const [ isHost, setIsHost ] = useState(false);
 
   useEffect(() => {
 
@@ -25,6 +28,11 @@ export default function Main(){
 
     something.onmessage = (message) => {
       const response = JSON.parse(message.data);
+
+
+      if(response.type === "host-is"){
+        setIsHost(response.isHost)
+      }
 
       if(response.type === "player-role"){
           setStartPlay(false)
@@ -37,6 +45,15 @@ export default function Main(){
 
       if(response.type === "actual-word"){
         alert(`The word was ${response.word}`)
+      }
+
+      if(response.type === "Game-Over"){
+        alert(response.message);
+        navigate("/")
+      }
+
+      if(response.type === "leave-room"){
+        navigate("/")
       }
 
       if(response.type === "new-Drawer"){
@@ -103,14 +120,14 @@ export default function Main(){
 
 <div>
 
- <Setting Socket={Socket} 
+ {isHost || isDrawer ? <Setting Socket={Socket} 
           setTimeleft={setTimeleft} 
           timeleft={timeleft} 
           round={round} 
           setStartPlay={setStartPlay} 
           startPlay={startPlay} 
           roomId={roomId}
-  />
+  /> : <div></div>}
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} isDrawer={isDrawer} />
     ) : (
@@ -118,6 +135,8 @@ export default function Main(){
     )}
 
 { isDrawer ? <CanavsBottom Socket={Socket} roomId={roomId}/> : <div></div>}
+
+<LeaveGame Socket={Socket} roomId={roomId} ></LeaveGame>
 </div>
 
       <div className="h-full p-10 flex justify-center items-center">

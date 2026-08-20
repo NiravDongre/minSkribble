@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/redisClient.ts"],"version":"6.0.2"}
+{"root":["./src/index.ts","./types/ws.d.ts"],"version":"6.0.2"}

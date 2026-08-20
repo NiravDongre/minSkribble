@@ -207,9 +207,10 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                                             rooms[roomId].Player.forEach(clients => {
                                                 const messages = {
                                                     type: "Game-Over",
+                                                    roomId: roomId,
                                                     message: "The game is ending thank you for your experience"
                                                 }
-                                                clients.socket.send(JSON.stringify(message))
+                                                clients.socket.send(JSON.stringify(messages))
                                             })
 
                                             rooms[roomId].Player.forEach( clients => {
@@ -371,12 +372,28 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
 
 
         if(parsedData.type === "leave-room"){
+            console.log("reached here right")
             if(!rooms[roomId]) return;
             const PlayerIndex = rooms[roomId].Player.findIndex(prev => prev.socket === ws);
 
             if(PlayerIndex === -1) return;
 
             rooms[roomId].Player.splice(PlayerIndex, 1);
+
+            const LeaveRoom = {
+                type: "leave-room",
+                roomId: roomId
+            }
+
+            ws.send(JSON.stringify(LeaveRoom))
+            
+            rooms[roomId].Player.forEach((clients) => {
+                clients.socket.send(JSON.stringify({
+                    type: "player-left",
+                    roomId: roomId,
+                    username: clients.username
+                }))
+            })
 
             if(rooms[roomId].Player.length === 0){
                 rooms[roomId].timer = 0;
