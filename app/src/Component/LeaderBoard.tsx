@@ -14,7 +14,7 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
     const handleUser = (messages) => {
         const data = JSON.parse(messages.data);
         if(data.type === "add-type"){
-            setAllUser(prev =>  [...prev,{ username: data.username, points: data.point, id: data.id }])
+            setAllUser(prev =>  [...prev,{ username: data.username, points: data.points, id: data.id }])
         }
         if(data.type === "pointplus"){
         setAllUser(prev =>

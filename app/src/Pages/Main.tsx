@@ -45,7 +45,9 @@ export default function Main(){
         if(response.isDrawer){
           alert(`${response.Drawer} is drawing`)
           setWord(response.word)
-        } setWord(undefined)
+        } else{
+          setWord("")
+        }
         
       }
 
@@ -101,15 +103,14 @@ export default function Main(){
 
 <div>
 
-{ isDrawer ?  <Setting Socket={Socket} 
+ <Setting Socket={Socket} 
           setTimeleft={setTimeleft} 
           timeleft={timeleft} 
           round={round} 
           setStartPlay={setStartPlay} 
           startPlay={startPlay} 
           roomId={roomId}
-  /> : <div></div>
-} 
+  />
     {Socket ? (
         <Canvas Socket={Socket} username={username} roomId={roomId} isDrawer={isDrawer} />
     ) : (

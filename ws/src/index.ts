@@ -94,16 +94,16 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
 
             if(rooms[roomId].isRoundRunning  === false){
-                const Twoplayer = {
-                    type: "need-player",
-                    roomId: roomId,
-                    message: "Need more player for starting"
-                }
 
                 if(PlayerIndex !== rooms[roomId]?.isCurrentlyDrawing) return;
 
                 if(!(rooms[roomId] && rooms[roomId].Player.length >= 2)){
                     rooms[roomId]?.Player.forEach(prev => {
+                        const Twoplayer = {
+                            type: "need-player",
+                            roomId: roomId,
+                            message: "Need more player for starting"
+                        }
                         if(prev.socket.readyState === WebSocket.OPEN){
                             prev.socket.send(JSON.stringify(Twoplayer))
                         }
@@ -346,5 +346,14 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 };
             })
         } 
+
+
+        if(parsedData.type === "leave-room"){
+            const PlayerIndex = rooms[roomId]?.Player.findIndex(prev => prev.socket === ws);
+
+            rooms[roomId]?.Player.forEach(clients => {
+                clients.socket.close(PlayerIndex)
+            })
+        }
     })
 })
