@@ -56,6 +56,10 @@ export default function Main(){
         navigate("/")
       }
 
+      if(response.type === "player-left"){
+        alert(`${response.username} has left`)
+      }
+      
       if(response.type === "new-Drawer"){
         setIsDrawer(response.isDrawer);
         setTimeleft(response.time)
