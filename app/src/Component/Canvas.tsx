@@ -79,23 +79,20 @@ useEffect(() => {
         if(!drawing) return; 
         const { offsetX, offsetY } = e.nativeEvent; 
 
-        if(!CanvasRef.current){
-            return;
-        } else {
-            ContextRef.current.lineTo(offsetX, offsetY);
+        if(!ContextRef.current) return;
+        ContextRef.current.lineTo(offsetX, offsetY);
 
-            const DrawingPayload = { 
-                type: "draw", 
-                username: username, 
-                roomId: roomId, 
-                x: offsetX, 
-                y: offsetY 
-            
-            } 
-            Socket.send(JSON.stringify(DrawingPayload))
-            ContextRef.current.stroke()
-            e.preventDefault() 
-        }
+        const DrawingPayload = { 
+            type: "draw", 
+            username: username, 
+            roomId: roomId, 
+            x: offsetX, 
+            y: offsetY 
+        
+        } 
+        Socket.send(JSON.stringify(DrawingPayload))
+        ContextRef.current.stroke()
+        e.preventDefault() 
     } 
     
     const stoptdraw = () => { 
