@@ -77,9 +77,10 @@ useEffect(() => {
     const movedraw = (e : React.MouseEvent) => {
         if (!isDrawer) return;
         if(!drawing) return; 
+        const { offsetX, offsetY } = e.nativeEvent; 
+
         if(!CanvasRef.current) return;
-            const { offsetX, offsetY } = e.nativeEvent; 
-            ContextRef.current.lineTo(offsetX, offsetY);
+        ContextRef.current.lineTo(offsetX, offsetY);
 
         const DrawingPayload = { 
             type: "draw", 
@@ -89,7 +90,7 @@ useEffect(() => {
             y: offsetY 
         
         } 
-    Socket.send(JSON.stringify(DrawingPayload))
+        Socket.send(JSON.stringify(DrawingPayload))
         ContextRef.current.stroke()
         e.preventDefault() 
     } 
