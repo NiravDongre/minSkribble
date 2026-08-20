@@ -79,7 +79,9 @@ useEffect(() => {
         if(!drawing) return; 
         const { offsetX, offsetY } = e.nativeEvent; 
 
-        if(CanvasRef.current){
+        if(!CanvasRef.current){
+            return;
+        } else {
             ContextRef.current.lineTo(offsetX, offsetY);
 
             const DrawingPayload = { 
@@ -93,8 +95,6 @@ useEffect(() => {
             Socket.send(JSON.stringify(DrawingPayload))
             ContextRef.current.stroke()
             e.preventDefault() 
-        } else {
-            return;
         }
     } 
     
