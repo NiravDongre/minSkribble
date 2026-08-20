@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import WebSocket ,{ WebSocketServer } from "ws";
 import cors from "cors";
@@ -11,7 +13,7 @@ app.use(cors({
     origin: "http://localhost:5173"
 }))
 
-const port = process.env.PORT
+const port = process.env.PORT || 8080
 const httpServer = app.listen(port, () => {
     console.log(`The App is listening on ${port}`)
 })
