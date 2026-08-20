@@ -8,11 +8,15 @@ import CanavsBottom from "../Component/CanvasLowerLayer";
 import LeaveGame from "../Component/LeaveGame";
 const something = new WebSocket(import.meta.env.WEBSOCKET_URL);
 import { useNavigate } from "react-router-dom";
+interface Message {
+    sender: string;
+    text: string;
+}
 
 export default function Main(){
   const navigate = useNavigate();
   const location = useLocation();
-  const [ messages , setMessages] = useState([]);
+  const [ messages , setMessages] = useState<Message[]>([]);
   const [ Socket, setSocket ] = useState<WebSocket | null>(null);
   const [ word, setWord ] = useState("");4
   const [ isDrawer, setIsDrawer ] = useState(false);

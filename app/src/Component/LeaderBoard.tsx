@@ -4,10 +4,16 @@ interface Board {
     Socket: WebSocket,
     roomId: string
 }
+
+interface Player {
+    username: string;
+    points: number;
+    id: string;
+}
  
 const LeaderBoard = ({Socket, roomId} : Board) => {
 
-    const [ allUser, setAllUser ] = useState([]);
+    const [ allUser, setAllUser ] = useState<Player[]>([]);
 
     useEffect(() => {
 
