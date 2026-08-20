@@ -33,7 +33,8 @@ interface Client {
     id: string
     username: string,
     socket: WebSocket,
-    points: number
+    points: number,
+    isHost: boolean
 }
 
 const client = 8;
@@ -76,9 +77,24 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 socket: ws,
                 points: 75
             }
+            
+            if (rooms[roomId].Player.length === client){
+                ws.send(JSON.stringify("No more people can join the room pls create another room by diff name"))
+            }
 
-            rooms[roomId].Player.push(detail);
+                const isHost = rooms[roomId].Player.length === 0;
+            rooms[roomId].Player.push({...detail, isHost});
+            
             const PlayerIndex = rooms[roomId].Player.findIndex(player =>  player.socket === ws);
+                
+
+                rooms[roomId].Player.forEach((clients) => {
+                    clients.socket.send(JSON.stringify({
+                        type: "host-is",
+                        roomId: roomId,
+                        isHost: clients.isHost
+                    }))
+                })
 
                 const addload = {
                     type: "add-type",
@@ -91,7 +107,7 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
                 rooms[roomId].Player.forEach(clients => {
                     if(clients.socket.readyState === WebSocket.OPEN){
                         clients.socket.send(JSON.stringify(addload))
-                    }
+                }
             })
         }
 
@@ -363,14 +379,22 @@ console.log(`this is the id of player i guess ${ConnectorId}`)
             rooms[roomId].Player.splice(PlayerIndex, 1);
 
             if(rooms[roomId].Player.length === 0){
+                rooms[roomId].timer = 0;
                 delete rooms[roomId]
             }
         }
     })
 
     ws.on("close", () => {
-        const PlayerIndex = rooms[ws.roomId]?.Player.findIndex(prev => prev.socket === ws);
-        if(PlayerIndex === -1 || PlayerIndex === undefined) return;
+        const roomId = ws.roomId
+        if(!rooms[roomId]) return;
+        const PlayerIndex = rooms[roomId].Player.findIndex(prev => prev.socket === ws);
+
+        if(PlayerIndex === -1) return;
         rooms[ws.roomId]?.Player.splice(PlayerIndex, 1);
+
+        if (rooms[roomId].Player.length === 0) {
+            delete rooms[roomId];
+        }
     })
 })
