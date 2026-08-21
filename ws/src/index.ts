@@ -10,7 +10,7 @@ interface ExtendedWebSocket extends WebSocket {
 
 const app = express();
 app.use(cors({
-    origin: "http://localhost:5173"
+    origin: "https://minskribble-gamma.vercel.app/"
 }))
 
 const port = process.env.PORT || 8080
@@ -18,7 +18,105 @@ const httpServer = app.listen(port, () => {
     console.log(`The App is listening on ${port}`)
 })
 
-const mixedword = ["animals", "sport", "world", "trees", "jungle"];
+const mixedword = [
+  "Elephant",
+  "Lion",
+  "Tiger",
+  "Monkey",
+  "Penguin",
+  "Giraffe",
+  "Zebra",
+  "Kangaroo",
+  "Crocodile",
+  "Octopus",
+  "Shark",
+  "Whale",
+  "Butterfly",
+  "Spider",
+  "Bee",
+  "Snake",
+  "Turtle",
+  "Rabbit",
+  "Horse",
+  "Cow",
+
+  "Train",
+  "Bus",
+  "Motorcycle",
+  "Submarine",
+  "Tractor",
+  "Ambulance",
+  "Police Car",
+  "Fire Truck",
+  "Hot Air Balloon",
+  "Spacesuit",
+
+  "Beach",
+  "Mountain",
+  "Waterfall",
+  "Forest",
+  "Desert",
+  "Island",
+  "River",
+  "Bridge",
+  "Park",
+  "Playground",
+
+  "Ice Cream",
+  "Burger",
+  "Hot Dog",
+  "Sandwich",
+  "Donut",
+  "Cake",
+  "Popcorn",
+  "Watermelon",
+  "Strawberry",
+  "Chocolate",
+
+  "Crown",
+  "Sword",
+  "Shield",
+  "Magic Wand",
+  "Treasure Chest",
+  "Pirate Ship",
+  "Wizard",
+  "Ghost",
+  "Vampire",
+  "Witch",
+
+  "Football",
+  "Basketball",
+  "Tennis",
+  "Cricket",
+  "Baseball",
+  "Swimming",
+  "Boxing",
+  "Bowling",
+  "Skating",
+  "Surfing",
+
+  "Clock",
+  "Key",
+  "Lock",
+  "Backpack",
+  "Glasses",
+  "Watch",
+  "Toothbrush",
+  "Mirror",
+  "Magnet",
+  "Flashlight",
+
+  "Birthday Party",
+  "Wedding",
+  "Camping Trip",
+  "Road Trip",
+  "Space Station",
+  "Movie Theater",
+  "Amusement Park",
+  "Zoo",
+  "School Bus",
+  "Supermarket"
+]
 
 function RandomWord(){
     return mixedword[Math.floor(Math.random() * mixedword.length)] || "";
