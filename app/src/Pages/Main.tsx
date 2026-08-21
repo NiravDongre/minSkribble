@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 import Setting from "../Component/GameSystem";
 import CanavsBottom from "../Component/CanvasLowerLayer";
 import LeaveGame from "../Component/LeaveGame";
-const something = new WebSocket(import.meta.env.WEBSOCKET_URL);
+const something = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
 import { useNavigate } from "react-router-dom";
 interface Message {
     sender: string;
