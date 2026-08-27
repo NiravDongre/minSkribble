@@ -39,7 +39,6 @@ const mixedword = [
   "Rabbit",
   "Horse",
   "Cow",
-
   "Train",
   "Bus",
   "Motorcycle",
@@ -50,7 +49,6 @@ const mixedword = [
   "Fire Truck",
   "Hot Air Balloon",
   "Spacesuit",
-
   "Beach",
   "Mountain",
   "Waterfall",
@@ -61,7 +59,6 @@ const mixedword = [
   "Bridge",
   "Park",
   "Playground",
-
   "Ice Cream",
   "Burger",
   "Hot Dog",
@@ -72,7 +69,6 @@ const mixedword = [
   "Watermelon",
   "Strawberry",
   "Chocolate",
-
   "Crown",
   "Sword",
   "Shield",
@@ -83,7 +79,6 @@ const mixedword = [
   "Ghost",
   "Vampire",
   "Witch",
-
   "Football",
   "Basketball",
   "Tennis",
@@ -94,7 +89,6 @@ const mixedword = [
   "Bowling",
   "Skating",
   "Surfing",
-
   "Clock",
   "Key",
   "Lock",
@@ -105,7 +99,6 @@ const mixedword = [
   "Mirror",
   "Magnet",
   "Flashlight",
-
   "Birthday Party",
   "Wedding",
   "Camping Trip",
