@@ -41,8 +41,7 @@ const LeaderBoard = ({Socket, roomId} : Board) => {
     }, [Socket])
 
 return (
-        <div className="w-full rounded-xl bg-white p-4 shadow-lg">
-            {/* Header */}
+        <div className="w-full rounded-xl m-10 bg-white p-4 shadow-lg">
             <div className="mb-4 flex items-center justify-between border-b pb-3">
                 <div>
                     <h2 className="text-lg font-bold text-gray-800">
@@ -58,7 +57,6 @@ return (
                 </div>
             </div>
 
-            {/* Player List */}
             <div className="space-y-2">
                 {allUser.map((people) => (
                     <div
@@ -66,18 +64,15 @@ return (
                         className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 transition hover:bg-gray-100"
                     >
                         <div className="flex items-center gap-3">
-                            {/* Avatar */}
                             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 font-bold text-white">
                                 {people.username[0]?.toUpperCase()}
                             </div>
 
-                            {/* Username */}
                             <span className="font-medium text-gray-800">
                                 {people.username}
                             </span>
                         </div>
 
-                        {/* Score */}
                         <span className="font-bold text-gray-700">
                             {people.points}
                         </span>

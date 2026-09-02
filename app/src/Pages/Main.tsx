@@ -119,10 +119,10 @@ export default function Main(){
   return (
  <div className="h-screen">
 
-    <div className=" text-center">
+<div className="bg-red-600 text-2xl text-center">
       Guess the word : {word}
     </div>
- <div className=" flex justify-between items-center">
+ <div className="bg-yellow-500 flex justify-between items-center">
 
 <LeaderBoard Socket={Socket} roomId={roomId}/>
 
